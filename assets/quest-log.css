@@ -1,0 +1,662 @@
+/* ============================================================================
+   MFSD QUEST LOG — Dark Gaming Theme
+   ============================================================================ */
+
+/* ── Dark theme body override ── */
+body.mfsd-quest-log-active {
+    background: #0d1117 !important;
+}
+
+/* ── Wrapper ── */
+.mfsd-quest-log {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #e0e0e0;
+}
+
+/* ============================================================================
+   HEADER — Avatar, name, coins
+   ============================================================================ */
+
+.ql-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #1a1f2e 0%, #161b22 100%);
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    margin-bottom: 28px;
+    gap: 16px;
+}
+
+.ql-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.ql-avatar-frame {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px solid #f0ad4e;
+    background: #21262d;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 16px rgba(240, 173, 78, 0.3);
+}
+
+.ql-avatar-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.ql-player-name {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.ql-character-title {
+    font-size: 13px;
+    color: #f0ad4e;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.ql-header-right {
+    flex-shrink: 0;
+}
+
+.ql-coin-balance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #2d1f00 0%, #3d2800 100%);
+    border: 1px solid #f0ad4e55;
+    border-radius: 30px;
+    padding: 10px 20px;
+}
+
+.ql-coin-icon {
+    width: 28px;
+    height: 28px;
+}
+
+.ql-coin-amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0ad4e;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   WEEK SECTIONS
+   ============================================================================ */
+
+.ql-week-section {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.ql-week-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ql-week-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.ql-week-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ql-progress-bar {
+    width: 120px;
+    height: 10px;
+    background: #21262d;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #30363d;
+}
+
+.ql-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #5cb85c, #8bc34a);
+    border-radius: 5px;
+    transition: width 0.6s ease;
+}
+
+.ql-progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #8b949e;
+    min-width: 30px;
+}
+
+/* ── Badge grid ── */
+.ql-badge-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.ql-badge-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px 8px 12px;
+    border-radius: 12px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+
+.ql-badge-card.earned {
+    border-color: #f0ad4e55;
+    background: linear-gradient(180deg, #21262d 0%, #1a1f2e 100%);
+}
+
+.ql-badge-card.earned:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(240, 173, 78, 0.15);
+}
+
+.ql-badge-card.locked {
+    opacity: 0.5;
+    filter: grayscale(60%);
+}
+
+.ql-badge-image-wrap {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.ql-badge-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.ql-badge-glow {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240, 173, 78, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+    animation: ql-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes ql-pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.08); }
+}
+
+.ql-badge-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #c9d1d9;
+    line-height: 1.3;
+}
+
+.ql-badge-coins {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #f0ad4e;
+}
+
+.ql-mini-coin {
+    width: 14px;
+    height: 14px;
+}
+
+/* ── Treasure chests ── */
+.ql-chests {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    padding-top: 16px;
+    border-top: 1px solid #30363d;
+}
+
+.ql-chest {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    min-width: 140px;
+    transition: transform 0.2s;
+}
+
+.ql-chest.earned {
+    border-color: #f0ad4e55;
+}
+
+.ql-chest.earned:hover {
+    transform: translateY(-3px);
+}
+
+.ql-chest.locked {
+    opacity: 0.4;
+    filter: grayscale(60%);
+}
+
+.ql-chest-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.ql-chest-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+
+.ql-chest-coins {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #f0ad4e;
+}
+
+.ql-chest-hint {
+    font-size: 11px;
+    color: #8b949e;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* ============================================================================
+   RAG EVOLUTION — Spark → Ember → Blaze
+   ============================================================================ */
+
+.ql-rag-evolution {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.ql-section-title {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.ql-section-sub {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #8b949e;
+}
+
+.ql-fire-path {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ql-fire-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    border-radius: 12px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    min-width: 110px;
+    transition: transform 0.2s;
+}
+
+.ql-fire-stage.lit {
+    border-color: #ff6b35;
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.2);
+}
+
+.ql-fire-stage.dark {
+    opacity: 0.4;
+    filter: grayscale(70%);
+}
+
+.ql-fire-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.ql-fire-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ff6b35;
+}
+
+.ql-fire-stage.dark .ql-fire-label {
+    color: #8b949e;
+}
+
+.ql-fire-week {
+    font-size: 11px;
+    color: #8b949e;
+    margin-top: 4px;
+}
+
+.ql-fire-connector {
+    display: flex;
+    align-items: center;
+}
+
+.ql-fire-arrow {
+    font-size: 24px;
+    color: #30363d;
+    font-weight: bold;
+}
+
+.ql-fire-connector.lit .ql-fire-arrow {
+    color: #ff6b35;
+    text-shadow: 0 0 8px rgba(255, 107, 53, 0.4);
+}
+
+/* ============================================================================
+   WALLET SUMMARY
+   ============================================================================ */
+
+.ql-wallet-summary {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.ql-wallet-balance-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #2d1f00 0%, #3d2800 100%);
+    border: 1px solid #f0ad4e44;
+    border-radius: 16px;
+    padding: 20px 40px;
+    margin: 16px 0;
+}
+
+.ql-wallet-balance-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8b949e;
+    margin-bottom: 4px;
+}
+
+.ql-wallet-balance-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #f0ad4e;
+    font-variant-numeric: tabular-nums;
+}
+
+.ql-wallet-info {
+    margin: 16px 0;
+}
+
+.ql-wallet-info p {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #8b949e;
+}
+
+.ql-wallet-rate {
+    display: inline-block;
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+
+/* ── History (populated by JS) ── */
+.ql-wallet-history {
+    margin: 16px 0;
+    text-align: left;
+}
+
+.ql-tx-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid #21262d;
+    font-size: 13px;
+}
+
+.ql-tx-row:last-child {
+    border-bottom: none;
+}
+
+.ql-tx-desc {
+    color: #c9d1d9;
+    flex: 1;
+    min-width: 0;
+}
+
+.ql-tx-amount {
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+.ql-tx-amount.positive {
+    color: #5cb85c;
+}
+
+.ql-tx-amount.negative {
+    color: #d9534f;
+}
+
+.ql-tx-date {
+    font-size: 11px;
+    color: #8b949e;
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+/* ── Buttons ── */
+.ql-btn {
+    display: inline-block;
+    border: 1px solid #30363d;
+    background: #21262d;
+    color: #c9d1d9;
+    border-radius: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.ql-btn:hover {
+    background: #30363d;
+    border-color: #8b949e;
+}
+
+.ql-btn-secondary {
+    background: transparent;
+    border-color: #30363d;
+    color: #8b949e;
+}
+
+.ql-btn-secondary:hover {
+    color: #c9d1d9;
+    background: #21262d;
+}
+
+/* ============================================================================
+   MOBILE RESPONSIVENESS
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .ql-badge-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .ql-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .ql-header-right {
+        align-self: flex-end;
+    }
+
+    .ql-player-name {
+        font-size: 18px;
+    }
+
+    .ql-week-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ql-chests {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .ql-chest {
+        min-width: 200px;
+    }
+
+    .ql-fire-path {
+        gap: 8px;
+    }
+
+    .ql-fire-stage {
+        min-width: 90px;
+        padding: 12px;
+    }
+
+    .ql-fire-img {
+        width: 56px;
+        height: 56px;
+    }
+
+    .ql-wallet-balance-box {
+        padding: 16px 28px;
+    }
+
+    .ql-wallet-balance-value {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ql-badge-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .ql-badge-image-wrap {
+        width: 64px;
+        height: 64px;
+    }
+
+    .ql-badge-image {
+        width: 64px;
+        height: 64px;
+    }
+
+    .ql-avatar-frame {
+        width: 56px;
+        height: 56px;
+    }
+
+    .ql-avatar-img {
+        width: 48px;
+        height: 48px;
+    }
+
+    .ql-fire-path {
+        flex-direction: column;
+    }
+
+    .ql-fire-connector {
+        transform: rotate(90deg);
+    }
+}
+
+/* ============================================================================
+   PRINT
+   ============================================================================ */
+
+@media print {
+    body.mfsd-quest-log-active {
+        background: white !important;
+    }
+
+    .mfsd-quest-log {
+        color: #333;
+    }
+
+    .ql-header, .ql-week-section, .ql-rag-evolution, .ql-wallet-summary {
+        background: white;
+        border-color: #ddd;
+        page-break-inside: avoid;
+    }
+
+    .ql-badge-card.locked {
+        opacity: 0.3;
+    }
+}
