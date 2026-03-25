@@ -1,7 +1,7 @@
 <?php
 /**
  * MFSD Quest Log — Frontend Renderer
- * v1.0.3 — correct week titles, WordPress avatar in header, inline image styles.
+ * v1.0.4 — ProfilePress avatar fix, Who Am I character badge.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -53,7 +53,7 @@ class MFSD_Quest_Log_Renderer {
             <?php $this->render_header($student_id, $display_name, $balance, $character, $images_url); ?>
 
             <?php foreach (self::WEEK_CONFIG as $week_num => $week): ?>
-                <?php $this->render_week_section($week_num, $week, $badges, $images_url); ?>
+                <?php $this->render_week_section($week_num, $week, $badges, $character, $images_url); ?>
             <?php endforeach; ?>
 
             <?php $this->render_rag_evolution($badges, $images_url); ?>
@@ -66,13 +66,49 @@ class MFSD_Quest_Log_Renderer {
     }
 
     /* ================================================================
-       HEADER — WordPress avatar, name, character subtitle, coins
+       GET PROFILE PICTURE — ProfilePress → WP Avatar → Fallback
+       ================================================================ */
+    private function get_profile_picture_url($student_id, $fallback_url) {
+        /*
+         * ProfilePress Pro hooks into WordPress get_avatar() to serve
+         * custom profile pictures. We parse the HTML output to get the src.
+         */
+        $avatar_html = get_avatar($student_id, 128);
+        if ($avatar_html && preg_match('/src=["\']([^"\']+)["\']/', $avatar_html, $matches)) {
+            $src = $matches[1];
+            /* If ProfilePress is serving a real image, use it */
+            if (!empty($src) && strpos($src, 'gravatar.com/avatar/') === false) {
+                return $src;
+            }
+            /* Even gravatar — if it has a real hash (not default), it might be valid */
+            if (!empty($src) && strpos($src, 'd=mystery') === false && strpos($src, 'd=blank') === false) {
+                return $src;
+            }
+        }
+
+        /* Check common ProfilePress user meta keys */
+        $pp_meta_keys = array('pp_profile_image', 'profilepress_profile_image', 'wp_user_avatar');
+        foreach ($pp_meta_keys as $key) {
+            $val = get_user_meta($student_id, $key, true);
+            if (!empty($val)) {
+                if (is_numeric($val)) {
+                    $url = wp_get_attachment_url((int) $val);
+                    if ($url) return $url;
+                } elseif (filter_var($val, FILTER_VALIDATE_URL)) {
+                    return $val;
+                }
+            }
+        }
+
+        return $fallback_url;
+    }
+
+    /* ================================================================
+       HEADER — profile picture, name, character subtitle, coins
        ================================================================ */
     private function render_header($student_id, $display_name, $balance, $character, $images_url) {
-        /* Use the student's WordPress/ProfilePress avatar, NOT the personality character */
-        $wp_avatar_url = get_avatar_url($student_id, array('size' => 128));
-        $fallback_src  = $images_url . 'ui/avatar_f.png';
-        $avatar_src    = $wp_avatar_url ? $wp_avatar_url : $fallback_src;
+        $fallback_src = $images_url . 'ui/avatar_f.png';
+        $avatar_src   = $this->get_profile_picture_url($student_id, $fallback_src);
         ?>
         <div class="ql-header">
             <div class="ql-header-left">
@@ -106,7 +142,7 @@ class MFSD_Quest_Log_Renderer {
     /* ================================================================
        WEEK SECTION — badge grid + chests
        ================================================================ */
-    private function render_week_section($week_num, $week, $badges, $images_url) {
+    private function render_week_section($week_num, $week, $badges, $character, $images_url) {
         $task_badge_slugs = array_keys($week['badges']);
         $earned_count = 0;
         foreach ($task_badge_slugs as $slug) {
@@ -132,11 +168,28 @@ class MFSD_Quest_Log_Renderer {
                 <?php foreach ($week['badges'] as $slug => $badge_config): ?>
                     <?php
                     $earned = isset($badges[$slug]);
-                    $badge_image = $earned ? ($images_url . 'badges/' . $badge_config['image']) : ($images_url . 'badges/badge_locked.png');
+
+                    /*
+                     * Who Am I badge — when earned, show the student's personality
+                     * character image instead of the generic badge artwork.
+                     */
+                    $is_who_am_i = in_array($slug, array('badge_who_am_i_1', 'badge_who_am_i_2'));
+                    $use_character_image = false;
+                    $badge_image = $images_url . 'badges/badge_locked.png';
+
+                    if ($earned) {
+                        if ($is_who_am_i && $character && !empty($character['filename'])) {
+                            $badge_image = ($character['avatars_url'] ?? ($images_url . 'characters/')) . $character['filename'];
+                            $use_character_image = true;
+                        } else {
+                            $badge_image = $images_url . 'badges/' . $badge_config['image'];
+                        }
+                    }
+
                     $coins = $earned ? ($badges[$slug]['coins_awarded'] ?? 10) : null;
                     ?>
                     <div class="ql-badge-card <?php echo $earned ? 'earned' : 'locked'; ?>" data-badge="<?php echo esc_attr($slug); ?>">
-                        <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:hidden;position:relative;margin:0 auto 10px;">
+                        <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:hidden;position:relative;margin:0 auto 10px;<?php echo $use_character_image ? 'border-radius:50%;background:#2d1f3d;' : ''; ?>">
                             <img src="<?php echo esc_url($badge_image); ?>"
                                  alt="<?php echo esc_attr($badge_config['label']); ?>"
                                  class="ql-badge-image"

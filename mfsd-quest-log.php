@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MFSD Quest Log
  * Description: Student badge/reward system — dark gaming theme with gem badges, treasure chests, coin wallet, and Spark/Ember/Blaze RAG evolution.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: MisterT9007
  */
 
@@ -14,7 +14,7 @@ foreach (array('db', 'engine', 'wallet', 'renderer') as $f) {
 }
 
 final class MFSD_Quest_Log {
-    const VERSION      = '1.0.0';
+    const VERSION      = '1.4.0';
     const NONCE_ACTION = 'mfsd_quest_log_nonce';
 
     public static function instance() {
@@ -127,24 +127,58 @@ final class MFSD_Quest_Log {
         $char = $map[$mbti] ?? null;
         if (!$char) return null;
 
-        /* Gender — check ProfilePress custom field, default to 'male' */
-        $gender = get_user_meta($student_id, 'gender', true);
-        $gender = in_array(strtolower($gender), array('female', 'f')) ? 'female' : 'male';
+        /* Avatar filename — must match the actual files in personality-test/assets/Avatars/ */
+        $avatar_files = self::avatar_file_map();
+        $filename = $avatar_files[$mbti] ?? ($char['name'] . '.png');
 
-        /* Characters with gendered variants */
-        $gendered = array('Architect', 'Debater', 'Entrepreneur');
-        if (in_array($char['name'], $gendered)) {
-            $filename = $char['name'] . '_' . ucfirst($gender) . '.png';
-        } else {
-            $filename = $char['name'] . '.png';
+        /* Build the URL to the personality test plugin's existing Avatars folder */
+        $avatars_url = '';
+        $possible_dirs = array(
+            'mfsd-personality-test/assets/Avatars/',
+            'personality-test/assets/Avatars/',
+        );
+        foreach ($possible_dirs as $dir) {
+            if (is_dir(WP_PLUGIN_DIR . '/' . $dir)) {
+                $avatars_url = plugins_url($dir);
+                break;
+            }
+        }
+        if (empty($avatars_url)) {
+            /* Fallback: quest log's own characters folder */
+            $avatars_url = plugin_dir_url(__FILE__) . 'assets/images/characters/';
         }
 
         return array(
-            'mbti'     => $mbti,
-            'name'     => $char['name'],
-            'group'    => $char['group'],
-            'gender'   => $gender,
-            'filename' => $filename,
+            'mbti'        => $mbti,
+            'name'        => $char['name'],
+            'group'       => $char['group'],
+            'filename'    => $filename,
+            'avatars_url' => $avatars_url,
+        );
+    }
+
+    /**
+     * Avatar filenames — must match the actual PNG files on disk.
+     * These come from the personality test plugin's AVATAR_FILES mapping.
+     */
+    public static function avatar_file_map() {
+        return array(
+            'ISTJ' => 'Logistician.png',
+            'ISFJ' => 'Defender.png',
+            'ESTJ' => 'Executive.png',
+            'ESFJ' => 'Consul.png',
+            'INTJ' => 'Architect.png',
+            'INTP' => 'Logician.png',
+            'ENTJ' => 'Commander.png',
+            'ENTP' => 'Debater.png',
+            'INFJ' => 'Advocate.png',
+            'INFP' => 'Mediatorv3.png',
+            'ENFJ' => 'Protagonist.png',
+            'ENFP' => 'Campaigner.png',
+            'ISTP' => 'Virtuoso.png',
+            'ISFP' => 'Adventurer.png',
+            'ESTP' => 'Entrepreneur.png',
+            'ESFP' => 'Entertainer.png',
         );
     }
 
