@@ -1,7 +1,7 @@
 <?php
 /**
  * MFSD Quest Log — Frontend Renderer
- * v1.0.5 — removed character subtitle from header, Who Am I badge frame + character overlay.
+ * v1.0.6 — removed character subtitle from header, Who Am I badge frame + character overlay.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -207,25 +207,21 @@ class MFSD_Quest_Log_Renderer {
                     }
                     ?>
                     <div class="ql-badge-card <?php echo $earned ? 'earned' : 'locked'; ?>" data-badge="<?php echo esc_attr($slug); ?>">
+                        <?php if ($has_character): ?>
+                        <!-- Who Am I: portal frame as background, character as foreground -->
+                        <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:visible;position:relative;margin:0 auto 10px;background:url('<?php echo esc_url($badge_image); ?>') center/contain no-repeat;">
+                            <img src="<?php echo esc_url($character_url); ?>"
+                                 alt="<?php echo esc_attr($badge_sublabel); ?>"
+                                 width="52" height="52"
+                                 style="width:52px;height:52px;max-width:52px;max-height:52px;object-fit:contain;display:block;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+                        <?php else: ?>
                         <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:hidden;position:relative;margin:0 auto 10px;">
-                            <?php if ($has_character): ?>
-                                <!-- Who Am I: badge frame as background, character overlaid -->
-                                <img src="<?php echo esc_url($badge_image); ?>"
-                                     alt="<?php echo esc_attr($badge_label); ?>"
-                                     class="ql-badge-image"
-                                     width="80" height="80"
-                                     style="width:80px;height:80px;max-width:80px;max-height:80px;object-fit:contain;display:block;position:absolute;inset:0;z-index:1;">
-                                <img src="<?php echo esc_url($character_url); ?>"
-                                     alt="<?php echo esc_attr($badge_sublabel); ?>"
-                                     width="56" height="56"
-                                     style="width:56px;height:56px;max-width:56px;max-height:56px;object-fit:contain;display:block;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;border-radius:50%;">
-                            <?php else: ?>
-                                <img src="<?php echo esc_url($badge_image); ?>"
-                                     alt="<?php echo esc_attr($badge_label); ?>"
-                                     class="ql-badge-image"
-                                     width="80" height="80"
-                                     style="width:80px;height:80px;max-width:80px;max-height:80px;object-fit:contain;display:block;">
-                            <?php endif; ?>
+                            <img src="<?php echo esc_url($badge_image); ?>"
+                                 alt="<?php echo esc_attr($badge_label); ?>"
+                                 class="ql-badge-image"
+                                 width="80" height="80"
+                                 style="width:80px;height:80px;max-width:80px;max-height:80px;object-fit:contain;display:block;">
+                        <?php endif; ?>
                             <?php if ($earned): ?>
                                 <div class="ql-badge-glow"></div>
                             <?php endif; ?>
