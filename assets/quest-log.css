@@ -153,6 +153,53 @@ body.mfsd-quest-log-active {
     margin-bottom: 20px;
     gap: 16px;
     flex-wrap: wrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    border-radius: 8px;
+    padding: 4px 0;
+    transition: opacity 0.2s;
+}
+
+.ql-week-header:hover {
+    opacity: 0.85;
+}
+
+.ql-week-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.ql-week-chevron {
+    display: inline-block;
+    font-size: 12px;
+    color: #8b949e;
+    transition: transform 0.3s ease;
+    line-height: 1;
+}
+
+.ql-collapsed .ql-week-chevron {
+    transform: rotate(-90deg);
+}
+
+.ql-collapsed .ql-week-header {
+    margin-bottom: 0;
+}
+
+/* ── Collapsible week body ── */
+.ql-week-body {
+    overflow: hidden;
+    max-height: 800px;
+    opacity: 1;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+}
+
+.ql-collapsed .ql-week-body {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .ql-week-title {
@@ -731,6 +778,7 @@ body.mfsd-quest-log-active {
     .ql-header-right { align-self: flex-end; }
     .ql-player-name { font-size: 18px; }
     .ql-week-header { flex-direction: column; align-items: flex-start; }
+    .ql-week-header-right { align-self: flex-end; }
     .ql-chests { flex-direction: column; align-items: center; }
     .ql-chest { min-width: 200px; }
     .ql-fire-path { gap: 8px; }

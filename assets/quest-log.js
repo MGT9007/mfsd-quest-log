@@ -6,6 +6,27 @@
     if (!root) return;
 
     /* ================================================================
+       COLLAPSIBLE WEEK SECTIONS — click header to toggle
+       ================================================================ */
+    root.querySelectorAll('.ql-week-header[role="button"]').forEach(function (header) {
+        header.addEventListener('click', function () {
+            var section = header.closest('.ql-week-section');
+            if (!section) return;
+
+            var isCollapsed = section.classList.toggle('ql-collapsed');
+            header.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+        });
+
+        /* Keyboard support — Enter and Space */
+        header.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                header.click();
+            }
+        });
+    });
+
+    /* ================================================================
        WALLET HISTORY — load on button click
        ================================================================ */
     const historyBtn = document.getElementById('ql-show-history');

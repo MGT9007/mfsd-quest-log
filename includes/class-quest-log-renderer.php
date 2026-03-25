@@ -1,7 +1,7 @@
 <?php
 /**
  * MFSD Quest Log — Frontend Renderer
- * v1.0.6 — removed character subtitle from header, Who Am I badge frame + character overlay.
+ * v1.6.6 — removed character subtitle from header, Who Am I badge frame + character overlay.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -167,17 +167,21 @@ class MFSD_Quest_Log_Renderer {
         $complete_slug = 'badge_week' . $week_num . '_complete';
         $achiever_slug = 'badge_week' . $week_num . '_achiever';
         ?>
-        <div class="ql-week-section" data-week="<?php echo $week_num; ?>">
-            <div class="ql-week-header">
+        <div class="ql-week-section<?php echo $earned_count === 0 ? ' ql-collapsed' : ''; ?>" data-week="<?php echo $week_num; ?>" data-earned="<?php echo $earned_count; ?>">
+            <div class="ql-week-header" role="button" tabindex="0" aria-expanded="<?php echo $earned_count > 0 ? 'true' : 'false'; ?>">
                 <h2 class="ql-week-title"><?php echo esc_html($week['title']); ?></h2>
-                <div class="ql-week-progress">
-                    <div class="ql-progress-bar">
-                        <div class="ql-progress-fill" style="width: <?php echo ($total > 0 ? round(($earned_count / $total) * 100) : 0); ?>%"></div>
+                <div class="ql-week-header-right">
+                    <div class="ql-week-progress">
+                        <div class="ql-progress-bar">
+                            <div class="ql-progress-fill" style="width: <?php echo ($total > 0 ? round(($earned_count / $total) * 100) : 0); ?>%"></div>
+                        </div>
+                        <span class="ql-progress-text"><?php echo $earned_count; ?>/<?php echo $total; ?></span>
                     </div>
-                    <span class="ql-progress-text"><?php echo $earned_count; ?>/<?php echo $total; ?></span>
+                    <span class="ql-week-chevron">&#9660;</span>
                 </div>
             </div>
 
+            <div class="ql-week-body">
             <div class="ql-badge-grid">
                 <?php foreach ($week['badges'] as $slug => $badge_config): ?>
                     <?php
@@ -279,6 +283,7 @@ class MFSD_Quest_Log_Renderer {
                     <?php endif; ?>
                 </div>
             </div>
+            </div><!-- /.ql-week-body -->
         </div>
         <?php
     }
