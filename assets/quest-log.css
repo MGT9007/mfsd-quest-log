@@ -1,5 +1,5 @@
 /* ============================================================================
-   MFSD QUEST LOG — Dark Gaming Theme v1.2.0
+   MFSD QUEST LOG — Dark Gaming Theme v1.7.0
    ============================================================================ */
 
 /* ── Dark theme body override ── */
@@ -507,65 +507,191 @@ body.mfsd-quest-log-active {
 }
 
 /* ============================================================================
-   WALLET SUMMARY
+   COIN LINK — header balance links to wallet page
    ============================================================================ */
 
-.ql-wallet-summary {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-    text-align: center;
+a.ql-coin-link {
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
 }
 
-.ql-wallet-balance-box {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    background: linear-gradient(135deg, #2d1f00 0%, #3d2800 100%);
+a.ql-coin-link:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 16px rgba(240, 173, 78, 0.3);
+}
+
+/* ============================================================================
+   WALLET PAGE — [mfsd_coin_wallet]
+   ============================================================================ */
+
+.ql-back-link {
+    display: inline-block;
+    color: #8b949e;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: color 0.2s;
+}
+
+.ql-back-link:hover {
+    color: #f0ad4e;
+}
+
+.ql-wallet-hero {
+    text-align: center;
+    padding: 32px 24px 28px;
+    background: linear-gradient(135deg, #2d1f00 0%, #3d2800 60%, #1a1f2e 100%);
     border: 1px solid #f0ad4e44;
     border-radius: 16px;
-    padding: 20px 40px;
-    margin: 16px 0;
+    margin-bottom: 24px;
 }
 
-.ql-wallet-balance-label {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #8b949e;
-    margin-bottom: 4px;
+.ql-wallet-hero-coin {
+    margin: 0 auto 12px;
+    animation: ql-coin-spin 5s ease-in-out infinite;
 }
 
-.ql-wallet-balance-value {
-    font-size: 32px;
+.ql-wallet-hero-title {
+    margin: 0 0 4px;
+    font-size: 28px;
     font-weight: 700;
     color: #f0ad4e;
-    font-variant-numeric: tabular-nums;
 }
 
-.ql-wallet-info {
-    margin: 16px 0;
-}
-
-.ql-wallet-info p {
-    margin: 0 0 8px;
+.ql-wallet-hero-name {
+    margin: 0;
     font-size: 14px;
     color: #8b949e;
 }
 
-.ql-wallet-rate {
-    display: inline-block;
+.ql-wallet-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.ql-wallet-stat-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+}
+
+.ql-wallet-stat-card.ql-wallet-stat-balance {
+    border-color: #f0ad4e44;
+    background: linear-gradient(180deg, #161b22 0%, #1a1a0e 100%);
+}
+
+.ql-wallet-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8b949e;
+    margin-bottom: 8px;
+}
+
+.ql-wallet-stat-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: #f0ad4e;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.ql-wallet-stat-balance .ql-wallet-stat-value {
+    font-size: 42px;
+}
+
+.ql-wallet-stat-unit {
+    font-size: 12px;
+    color: #8b949e;
+    margin-top: 4px;
+}
+
+.ql-wallet-rate-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     background: #21262d;
     border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 8px 16px;
+    border-radius: 10px;
+    padding: 10px 20px;
     font-size: 13px;
     font-weight: 600;
     color: #c9d1d9;
+    margin-bottom: 28px;
+    text-align: center;
 }
+
+.ql-wallet-history-section {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.ql-wallet-history-section .ql-section-title {
+    margin-bottom: 16px;
+}
+
+.ql-wallet-history-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Scrollbar for history */
+.ql-wallet-history-list::-webkit-scrollbar { width: 6px; }
+.ql-wallet-history-list::-webkit-scrollbar-track { background: #0d1117; border-radius: 3px; }
+.ql-wallet-history-list::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+.ql-wallet-history-list::-webkit-scrollbar-thumb:hover { background: #8b949e; }
+
+/* Wallet page transaction rows — enhanced layout */
+.mfsd-wallet-page .ql-tx-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid #21262d;
+    font-size: 13px;
+    gap: 12px;
+}
+
+.ql-tx-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.ql-tx-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.ql-tx-type {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.ql-tx-type-earn   { background: #1a3a1a; color: #5cb85c; }
+.ql-tx-type-bonus  { background: #3a2f1a; color: #f0ad4e; }
+.ql-tx-type-spend  { background: #3a1a1a; color: #d9534f; }
+.ql-tx-type-refund { background: #1a2a3a; color: #5bc0de; }
 
 /* ── History (populated by JS) ── */
 .ql-wallet-history {
@@ -784,8 +910,12 @@ body.mfsd-quest-log-active {
     .ql-fire-path { gap: 8px; }
     .ql-fire-stage { min-width: 90px; padding: 12px; }
     .ql-fire-stage img, .ql-fire-img { width: 56px !important; height: 56px !important; max-width: 56px !important; max-height: 56px !important; }
-    .ql-wallet-balance-box { padding: 16px 28px; }
-    .ql-wallet-balance-value { font-size: 26px; }
+    .ql-wallet-stats { grid-template-columns: 1fr; gap: 12px; }
+    .ql-wallet-stat-value { font-size: 28px; }
+    .ql-wallet-stat-balance .ql-wallet-stat-value { font-size: 34px; }
+    .ql-wallet-hero-title { font-size: 24px; }
+    .mfsd-wallet-page .ql-tx-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .ql-tx-right { align-self: flex-end; }
 }
 
 @media (max-width: 480px) {

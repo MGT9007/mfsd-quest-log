@@ -1,7 +1,7 @@
 <?php
 /**
  * MFSD Quest Log — Frontend Renderer
- * v1.6.6 — removed character subtitle from header, Who Am I badge frame + character overlay.
+ * v1.7.0 — removed character subtitle from header, Who Am I badge frame + character overlay.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -57,8 +57,6 @@ class MFSD_Quest_Log_Renderer {
             <?php endforeach; ?>
 
             <?php $this->render_rag_evolution($badges, $images_url); ?>
-
-            <?php $this->render_wallet_summary($balance); ?>
 
         </div>
         <?php
@@ -142,12 +140,18 @@ class MFSD_Quest_Log_Renderer {
                 </div>
             </div>
             <div class="ql-header-right">
-                <div class="ql-coin-balance">
+                <?php
+                $wallet_page_id = (int) get_option('mfsd_quest_wallet_page_id', 0);
+                $wallet_url = $wallet_page_id > 0 ? get_permalink($wallet_page_id) : '';
+                $tag_open  = $wallet_url ? '<a href="' . esc_url($wallet_url) . '" class="ql-coin-balance ql-coin-link" title="View Coin Wallet">' : '<div class="ql-coin-balance">';
+                $tag_close = $wallet_url ? '</a>' : '</div>';
+                echo $tag_open;
+                ?>
                     <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="Coins" class="ql-coin-icon"
                          width="28" height="28"
                          style="width:28px;height:28px;max-width:28px;max-height:28px;object-fit:contain;">
                     <span class="ql-coin-amount" id="ql-coin-amount"><?php echo (int) $balance; ?></span>
-                </div>
+                <?php echo $tag_close; ?>
             </div>
         </div>
         <?php
@@ -329,25 +333,88 @@ class MFSD_Quest_Log_Renderer {
     }
 
     /* ================================================================
-       WALLET SUMMARY
+       WALLET PAGE — [mfsd_coin_wallet] shortcode output
        ================================================================ */
-    private function render_wallet_summary($balance) {
+    public function render_wallet_page($student_id, $balance, $total_earned, $history, $display_name, $images_url, $quest_log_url) {
+        $coins_per_min  = MFSD_Quest_Log_Wallet::coins_per_minute();
+        $arcade_minutes = $coins_per_min > 0 ? round($balance / $coins_per_min, 1) : 0;
+        ob_start();
         ?>
-        <div class="ql-wallet-summary">
-            <h2 class="ql-section-title">Coin Wallet</h2>
-            <div class="ql-wallet-balance-box">
-                <div class="ql-wallet-balance-label">Current Balance</div>
-                <div class="ql-wallet-balance-value" id="ql-wallet-balance"><?php echo (int) $balance; ?> coins</div>
+        <div class="mfsd-quest-log mfsd-wallet-page" id="mfsd-quest-log-root">
+
+            <?php if ($quest_log_url): ?>
+                <a href="<?php echo esc_url($quest_log_url); ?>" class="ql-back-link">&larr; Back to Quest Log</a>
+            <?php endif; ?>
+
+            <div class="ql-wallet-hero">
+                <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="Coins" class="ql-wallet-hero-coin"
+                     width="56" height="56"
+                     style="width:56px;height:56px;max-width:56px;max-height:56px;object-fit:contain;">
+                <h1 class="ql-wallet-hero-title">Coin Wallet</h1>
+                <p class="ql-wallet-hero-name"><?php echo esc_html($display_name); ?></p>
             </div>
-            <div class="ql-wallet-info">
-                <p>Earn coins by completing activities and unlocking badges. Save up for the Arcade!</p>
-                <div class="ql-wallet-rate">10 coins = 1 minute of arcade time</div>
+
+            <div class="ql-wallet-stats">
+                <div class="ql-wallet-stat-card ql-wallet-stat-balance">
+                    <div class="ql-wallet-stat-label">Current Balance</div>
+                    <div class="ql-wallet-stat-value" id="ql-coin-amount"><?php echo (int) $balance; ?></div>
+                    <div class="ql-wallet-stat-unit">coins</div>
+                </div>
+                <div class="ql-wallet-stat-card">
+                    <div class="ql-wallet-stat-label">Total Earned</div>
+                    <div class="ql-wallet-stat-value"><?php echo (int) $total_earned; ?></div>
+                    <div class="ql-wallet-stat-unit">coins</div>
+                </div>
+                <div class="ql-wallet-stat-card">
+                    <div class="ql-wallet-stat-label">Arcade Time</div>
+                    <div class="ql-wallet-stat-value"><?php echo $arcade_minutes; ?></div>
+                    <div class="ql-wallet-stat-unit">minutes available</div>
+                </div>
             </div>
-            <div class="ql-wallet-history" id="ql-wallet-history">
-                <!-- Populated by JS on click -->
+
+            <div class="ql-wallet-rate-info">
+                <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                     width="14" height="14" style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
+                <?php echo $coins_per_min; ?> coins = 1 minute of arcade time
             </div>
-            <button class="ql-btn ql-btn-secondary" id="ql-show-history" type="button">View Transaction History</button>
+
+            <div class="ql-wallet-history-section">
+                <h2 class="ql-section-title">Transaction History</h2>
+                <?php if (empty($history)): ?>
+                    <p style="text-align:center;padding:20px;color:#8b949e;">No transactions yet — start earning badges!</p>
+                <?php else: ?>
+                    <div class="ql-wallet-history-list">
+                        <?php foreach ($history as $tx):
+                            $positive = $tx['coins'] >= 0;
+                            $sign     = $positive ? '+' : '';
+                            $cls      = $positive ? 'positive' : 'negative';
+                            $desc     = !empty($tx['description']) ? $tx['description'] : ($tx['source'] ?? 'Transaction');
+                            $date     = '';
+                            if (!empty($tx['created_at'])) {
+                                $ts = strtotime($tx['created_at']);
+                                $date = $ts ? date_i18n('j M Y', $ts) : $tx['created_at'];
+                            }
+                        ?>
+                            <div class="ql-tx-row">
+                                <div class="ql-tx-left">
+                                    <span class="ql-tx-type ql-tx-type-<?php echo esc_attr($tx['transaction_type']); ?>"><?php echo esc_html(ucfirst($tx['transaction_type'])); ?></span>
+                                    <span class="ql-tx-desc"><?php echo esc_html($desc); ?></span>
+                                </div>
+                                <div class="ql-tx-right">
+                                    <span class="ql-tx-amount <?php echo $cls; ?>"><?php echo $sign . $tx['coins']; ?>
+                                        <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                                             width="12" height="12" style="width:12px;height:12px;max-width:12px;max-height:12px;object-fit:contain;display:inline-block;">
+                                    </span>
+                                    <span class="ql-tx-date"><?php echo esc_html($date); ?></span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
         </div>
         <?php
+        return ob_get_clean();
     }
 }

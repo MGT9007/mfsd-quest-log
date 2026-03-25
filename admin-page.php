@@ -1,7 +1,7 @@
 <?php
 /**
  * MFSD Quest Log — Admin Page
- * v1.6.5 — per-badge shimmer and coin spin controls.
+ * v1.7.0 — per-badge shimmer and coin spin controls.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -74,6 +74,10 @@ if (isset($_POST['mfsd_quest_reevaluate']) && check_admin_referer('mfsd_quest_re
 if (isset($_POST['mfsd_quest_save_settings']) && check_admin_referer('mfsd_quest_settings')) {
     $cpm = max(1, (int) ($_POST['coins_per_minute'] ?? 10));
     update_option('mfsd_quest_coins_per_minute', $cpm);
+
+    /* Wallet page setting */
+    $wallet_page_id = (int) ($_POST['wallet_page_id'] ?? 0);
+    update_option('mfsd_quest_wallet_page_id', $wallet_page_id);
 
     /* Global animation toggles */
     $global_anims = array('float', 'border_glow', 'fire_flicker', 'chest_wobble', 'locked_pulse', 'progress_shine');
@@ -283,6 +287,29 @@ $students = get_users(array('role' => 'student', 'number' => 100, 'orderby' => '
                         <td>
                             <input type="number" name="coins_per_minute" min="1" max="100" value="<?php echo $coins_per_min; ?>">
                             <p class="description">Default: 10 coins = 1 minute of arcade time.</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Wallet Page -->
+            <div style="background:#fff;padding:20px;border:1px solid #ddd;border-radius:8px;max-width:800px;margin-bottom:24px;">
+                <h3 style="margin-top:0;">Coin Wallet Page</h3>
+                <p class="description" style="margin-bottom:12px;">Select the page containing the <code>[mfsd_coin_wallet]</code> shortcode. The header coin balance on the Quest Log will link to this page.</p>
+                <table class="form-table" style="margin-top:0;">
+                    <tr>
+                        <th>Wallet page</th>
+                        <td>
+                            <?php
+                            $wallet_page_id = (int) get_option('mfsd_quest_wallet_page_id', 0);
+                            wp_dropdown_pages(array(
+                                'name'              => 'wallet_page_id',
+                                'selected'          => $wallet_page_id,
+                                'show_option_none'   => '— Not set (coin balance won\'t link) —',
+                                'option_none_value'  => '0',
+                            ));
+                            ?>
+                            <p class="description">Create a page with <code>[mfsd_coin_wallet]</code> then select it here.</p>
                         </td>
                     </tr>
                 </table>

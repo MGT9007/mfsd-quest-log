@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MFSD Quest Log
  * Description: Student badge/reward system — dark gaming theme with gem badges, treasure chests, coin wallet, and Spark/Ember/Blaze RAG evolution.
- * Version: 1.6.6
+ * Version: 1.7.0
  * Author: MisterT9007
  */
 
@@ -14,7 +14,7 @@ foreach (array('db', 'engine', 'wallet', 'renderer') as $f) {
 }
 
 final class MFSD_Quest_Log {
-    const VERSION      = '1.6.6';
+    const VERSION      = '1.7.0';
     const NONCE_ACTION = 'mfsd_quest_log_nonce';
 
     public static function instance() {
@@ -25,7 +25,8 @@ final class MFSD_Quest_Log {
     private function __construct() {
         register_activation_hook(__FILE__, array($this, 'install'));
         add_action('init',           array($this, 'register_assets'));
-        add_shortcode('mfsd_quest_log', array($this, 'shortcode'));
+        add_shortcode('mfsd_quest_log',   array($this, 'shortcode'));
+        add_shortcode('mfsd_coin_wallet', array($this, 'wallet_shortcode'));
         add_action('rest_api_init',  array($this, 'register_routes'));
         add_action('admin_menu',     array($this, 'admin_menu'));
     }
@@ -89,6 +90,7 @@ final class MFSD_Quest_Log {
             'badges'       => $badges,
             'character'    => $character_data,
             'imagesUrl'    => $images_url,
+            'walletUrl'    => $this->get_wallet_page_url(),
         ));
 
         wp_enqueue_style('mfsd-quest-log');
@@ -274,6 +276,72 @@ final class MFSD_Quest_Log {
             'ESTP' => array('name' => 'Entrepreneur', 'group' => 'explorers'),
             'ESFP' => array('name' => 'Entertainer',  'group' => 'explorers'),
         );
+    }
+
+    /* ================================================================
+       WALLET PAGE URL — admin-configurable
+       ================================================================ */
+    private function get_wallet_page_url() {
+        $page_id = (int) get_option('mfsd_quest_wallet_page_id', 0);
+        if ($page_id > 0) {
+            $url = get_permalink($page_id);
+            if ($url) return $url;
+        }
+        return '#'; /* Fallback if not configured */
+    }
+
+    /* ================================================================
+       SHORTCODE — [mfsd_coin_wallet]
+       ================================================================ */
+    public function wallet_shortcode($atts) {
+        if (!is_user_logged_in()) {
+            return '<p style="text-align:center;padding:40px;color:#aaa;">Please log in to view your Coin Wallet.</p>';
+        }
+
+        $student_id = get_current_user_id();
+        $user = get_userdata($student_id);
+        if ($user && !in_array('student', (array)$user->roles) && !in_array('administrator', (array)$user->roles)) {
+            return '<p style="text-align:center;padding:40px;color:#aaa;">The Coin Wallet is only available for students.</p>';
+        }
+
+        $wallet   = new MFSD_Quest_Log_Wallet();
+        $renderer = new MFSD_Quest_Log_Renderer();
+
+        $balance        = $wallet->get_balance($student_id);
+        $total_earned   = $wallet->get_total_earned($student_id);
+        $history        = $wallet->get_history($student_id, 50);
+        $display_name   = $user ? $user->display_name : 'Student';
+        $images_url     = plugin_dir_url(__FILE__) . 'assets/images/';
+
+        /* Find the quest log page URL for the back link */
+        $quest_log_url = '';
+        $ql_pages = get_posts(array(
+            'post_type'  => 'page',
+            'status'     => 'publish',
+            's'          => '[mfsd_quest_log]',
+            'numberposts' => 1,
+        ));
+        if (!empty($ql_pages)) {
+            $quest_log_url = get_permalink($ql_pages[0]->ID);
+        }
+
+        wp_localize_script('mfsd-quest-log', 'MFSD_QUEST_CFG', array(
+            'restBase'     => esc_url_raw(rest_url('mfsd-quest/v1')),
+            'nonce'        => wp_create_nonce('wp_rest'),
+            'studentId'    => $student_id,
+            'balance'      => $balance,
+        ));
+
+        wp_enqueue_style('mfsd-quest-log');
+        wp_enqueue_script('mfsd-quest-log');
+
+        /* Force dark theme body class */
+        add_filter('body_class', function($classes) {
+            $classes[] = 'mfsd-quest-log-active';
+            return $classes;
+        });
+
+        return $renderer->render_wallet_page($student_id, $balance, $total_earned, $history, $display_name, $images_url, $quest_log_url);
     }
 
     /* ================================================================

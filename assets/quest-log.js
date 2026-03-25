@@ -27,64 +27,6 @@
     });
 
     /* ================================================================
-       WALLET HISTORY — load on button click
-       ================================================================ */
-    const historyBtn = document.getElementById('ql-show-history');
-    const historyBox = document.getElementById('ql-wallet-history');
-    let historyLoaded = false;
-
-    if (historyBtn && historyBox) {
-        historyBtn.addEventListener('click', async function () {
-            if (historyLoaded) {
-                historyBox.style.display = historyBox.style.display === 'none' ? 'block' : 'none';
-                historyBtn.textContent = historyBox.style.display === 'none' ? 'View Transaction History' : 'Hide History';
-                return;
-            }
-
-            historyBtn.textContent = 'Loading...';
-            historyBtn.disabled = true;
-
-            try {
-                const res = await fetch(cfg.restBase + '/wallet/history', {
-                    method: 'GET',
-                    headers: { 'X-WP-Nonce': cfg.nonce || '', 'Accept': 'application/json' },
-                    credentials: 'same-origin'
-                });
-
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-
-                if (data.ok && data.transactions && data.transactions.length > 0) {
-                    historyBox.innerHTML = data.transactions.map(function (tx) {
-                        const positive = tx.coins >= 0;
-                        const sign = positive ? '+' : '';
-                        const cls = positive ? 'positive' : 'negative';
-                        const date = formatDate(tx.created_at);
-                        const desc = tx.description || tx.source || 'Transaction';
-
-                        return '<div class="ql-tx-row">' +
-                            '<span class="ql-tx-desc">' + escHtml(desc) + '</span>' +
-                            '<span class="ql-tx-amount ' + cls + '">' + sign + tx.coins + '</span>' +
-                            '<span class="ql-tx-date">' + date + '</span>' +
-                            '</div>';
-                    }).join('');
-                } else {
-                    historyBox.innerHTML = '<div style="text-align:center;padding:16px;color:#8b949e;">No transactions yet — start earning badges!</div>';
-                }
-
-                historyBox.style.display = 'block';
-                historyLoaded = true;
-                historyBtn.textContent = 'Hide History';
-                historyBtn.disabled = false;
-            } catch (err) {
-                console.error('Wallet history error:', err);
-                historyBtn.textContent = 'View Transaction History';
-                historyBtn.disabled = false;
-            }
-        });
-    }
-
-    /* ================================================================
        BADGE CARD INTERACTIONS — tap to see details
        ================================================================ */
     const badgeCards = root.querySelectorAll('.ql-badge-card.earned');
