@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MFSD Quest Log
  * Description: Student badge/reward system — dark gaming theme with gem badges, treasure chests, coin wallet, and Spark/Ember/Blaze RAG evolution.
- * Version: 1.6.4
+ * Version: 1.6.5
  * Author: MisterT9007
  */
 
@@ -14,7 +14,7 @@ foreach (array('db', 'engine', 'wallet', 'renderer') as $f) {
 }
 
 final class MFSD_Quest_Log {
-    const VERSION      = '1.6.4';
+    const VERSION      = '1.6.5';
     const NONCE_ACTION = 'mfsd_quest_log_nonce';
 
     public static function instance() {
@@ -107,23 +107,53 @@ final class MFSD_Quest_Log {
     }
 
     /* ================================================================
-       ANIMATION CSS — reads admin settings, returns inline CSS overrides
+       ANIMATION CSS — per-badge shimmer/coin + global toggles
        ================================================================ */
     private function get_animation_css() {
         $css = '';
 
-        /* CSS custom properties for configurable timing */
-        $shimmer_dur   = (int) get_option('mfsd_quest_anim_shimmer_interval', 5);
-        $coin_spin_dur = (int) get_option('mfsd_quest_anim_coin_spin_interval', 5);
-        $css .= ".mfsd-quest-log { --ql-shimmer-dur: {$shimmer_dur}s; --ql-coin-spin-dur: {$coin_spin_dur}s; }\n";
+        /* ── Per-badge shimmer ── */
+        $shimmer_raw = get_option('mfsd_quest_shimmer_config', '{}');
+        $shimmer_cfg = json_decode($shimmer_raw, true) ?: array();
 
-        /* Disable animations that are toggled off */
-        if (get_option('mfsd_quest_anim_shimmer', '0') !== '1') {
-            $css .= ".ql-badge-card.earned .ql-badge-image-wrap::after { animation: none !important; content: none !important; }\n";
+        /* Default: shimmer off for all badges. Only enable those marked on. */
+        $css .= ".ql-badge-card.earned .ql-badge-image-wrap::after { animation: none !important; content: none !important; }\n";
+
+        $shimmer_on_count = 0;
+        foreach ($shimmer_cfg as $slug => $cfg) {
+            if (!empty($cfg['on'])) {
+                $interval = max(2, (int) ($cfg['interval'] ?? 5));
+                $slug_esc = esc_attr($slug);
+                $css .= ".ql-badge-card.earned[data-badge=\"{$slug_esc}\"] .ql-badge-image-wrap::after { animation: ql-shimmer {$interval}s ease-in-out infinite !important; content: '' !important; }\n";
+                $shimmer_on_count++;
+            }
         }
-        if (get_option('mfsd_quest_anim_coin_spin', '1') !== '1') {
+
+        /* ── Per-location coin spin ── */
+        $coin_raw  = get_option('mfsd_quest_coin_config', '{}');
+        $coin_cfg  = json_decode($coin_raw, true) ?: array();
+        $coin_hdr  = $coin_cfg['header'] ?? array('on' => true, 'interval' => 5);
+        $coin_bdgs = $coin_cfg['badges'] ?? array();
+
+        /* Header coin */
+        if (!empty($coin_hdr['on'])) {
+            $hdr_dur = max(2, (int) ($coin_hdr['interval'] ?? 5));
+            $css .= ".ql-coin-icon { animation: ql-coin-spin {$hdr_dur}s ease-in-out infinite; }\n";
+        } else {
             $css .= ".ql-coin-icon { animation: none !important; }\n";
         }
+
+        /* Per-badge mini coin — default off, enable those marked on */
+        $css .= ".ql-badge-coins .ql-mini-coin { animation: none; }\n";
+        foreach ($coin_bdgs as $slug => $cfg) {
+            if (!empty($cfg['on'])) {
+                $interval = max(2, (int) ($cfg['interval'] ?? 4));
+                $slug_esc = esc_attr($slug);
+                $css .= ".ql-badge-card[data-badge=\"{$slug_esc}\"] .ql-badge-coins .ql-mini-coin { animation: ql-coin-spin {$interval}s ease-in-out infinite !important; }\n";
+            }
+        }
+
+        /* ── Global animation toggles ── */
         if (get_option('mfsd_quest_anim_float', '1') !== '1') {
             $css .= ".ql-badge-card.earned .ql-badge-image { animation: none !important; }\n";
         }
