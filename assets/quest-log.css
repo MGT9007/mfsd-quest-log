@@ -604,6 +604,174 @@ body.mfsd-quest-log-active {
 }
 
 /* ============================================================================
+   BADGE ANIMATIONS — subtle ambient effects on earned badges
+   ============================================================================ */
+
+/* ── 1. Shimmer sweep — diagonal light sweep across earned badge images ── */
+.ql-badge-card.earned .ql-badge-image-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.15) 45%,
+        rgba(255, 255, 255, 0.25) 50%,
+        rgba(255, 255, 255, 0.15) 55%,
+        transparent 60%
+    );
+    transform: translateX(-120%);
+    animation: ql-shimmer 4s ease-in-out infinite;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* Stagger shimmer per badge — each one catches the light at a different moment */
+.ql-badge-card.earned:nth-child(2) .ql-badge-image-wrap::after { animation-delay: 0.8s; }
+.ql-badge-card.earned:nth-child(3) .ql-badge-image-wrap::after { animation-delay: 1.6s; }
+.ql-badge-card.earned:nth-child(4) .ql-badge-image-wrap::after { animation-delay: 2.4s; }
+.ql-badge-card.earned:nth-child(5) .ql-badge-image-wrap::after { animation-delay: 3.2s; }
+
+@keyframes ql-shimmer {
+    0%, 100% { transform: translateX(-120%); }
+    60%      { transform: translateX(120%); }
+    61%      { transform: translateX(-120%); }
+}
+
+/* ── 2. Gentle float — earned badge images bob up and down ── */
+.ql-badge-card.earned .ql-badge-image {
+    animation: ql-float 3.5s ease-in-out infinite;
+}
+
+/* Stagger float so badges don't bob in unison */
+.ql-badge-card.earned:nth-child(1) .ql-badge-image { animation-delay: 0s; }
+.ql-badge-card.earned:nth-child(2) .ql-badge-image { animation-delay: 0.7s; }
+.ql-badge-card.earned:nth-child(3) .ql-badge-image { animation-delay: 1.4s; }
+.ql-badge-card.earned:nth-child(4) .ql-badge-image { animation-delay: 2.1s; }
+.ql-badge-card.earned:nth-child(5) .ql-badge-image { animation-delay: 2.8s; }
+
+@keyframes ql-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+}
+
+/* ── 3. Coin spin — coin icons do a subtle flip every few seconds ── */
+.ql-coin-icon {
+    animation: ql-coin-spin 5s ease-in-out infinite;
+}
+
+.ql-badge-coins .ql-mini-coin {
+    animation: ql-coin-spin 4s ease-in-out infinite;
+    animation-delay: 1s;
+}
+
+@keyframes ql-coin-spin {
+    0%, 85%, 100% { transform: rotateY(0deg); }
+    90%           { transform: rotateY(180deg); }
+    95%           { transform: rotateY(360deg); }
+}
+
+/* ── 4. Earned card border glow — animated border colour on earned badges ── */
+.ql-badge-card.earned {
+    animation: ql-border-glow 3s ease-in-out infinite;
+}
+
+.ql-badge-card.earned:nth-child(2) { animation-delay: 0.5s; }
+.ql-badge-card.earned:nth-child(3) { animation-delay: 1.0s; }
+.ql-badge-card.earned:nth-child(4) { animation-delay: 1.5s; }
+.ql-badge-card.earned:nth-child(5) { animation-delay: 2.0s; }
+
+@keyframes ql-border-glow {
+    0%, 100% { border-color: rgba(240, 173, 78, 0.33); box-shadow: 0 0 0 rgba(240, 173, 78, 0); }
+    50%      { border-color: rgba(240, 173, 78, 0.6);  box-shadow: 0 0 12px rgba(240, 173, 78, 0.12); }
+}
+
+/* ── 5. Fire flicker — lit RAG stages have a subtle flame effect ── */
+.ql-fire-stage.lit .ql-fire-img {
+    animation: ql-fire-flicker 2s ease-in-out infinite;
+}
+
+.ql-fire-stage.lit:nth-child(3) .ql-fire-img { animation-delay: 0.4s; }
+.ql-fire-stage.lit:nth-child(5) .ql-fire-img { animation-delay: 0.8s; }
+
+@keyframes ql-fire-flicker {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+    25%      { transform: scale(1.03) rotate(-1deg); filter: brightness(1.1); }
+    50%      { transform: scale(0.98) rotate(0.5deg); filter: brightness(1.05); }
+    75%      { transform: scale(1.02) rotate(-0.5deg); filter: brightness(1.15); }
+}
+
+/* ── 6. Chest wobble — earned chests have a playful jiggle on hover ── */
+.ql-chest.earned:hover .ql-chest-img {
+    animation: ql-chest-wobble 0.5s ease-in-out;
+}
+
+@keyframes ql-chest-wobble {
+    0%   { transform: rotate(0deg); }
+    20%  { transform: rotate(-6deg); }
+    40%  { transform: rotate(5deg); }
+    60%  { transform: rotate(-3deg); }
+    80%  { transform: rotate(2deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* ── 7. Locked badges — slow dark pulse to hint they're waiting ── */
+.ql-badge-card.locked .ql-badge-image {
+    animation: ql-locked-pulse 4s ease-in-out infinite;
+}
+
+@keyframes ql-locked-pulse {
+    0%, 100% { opacity: 0.5; }
+    50%      { opacity: 0.7; }
+}
+
+/* ── 8. Coin balance — pop animation when value changes (triggered by JS class) ── */
+.ql-coin-amount.ql-coin-pop {
+    animation: ql-coin-pop 0.4s ease-out;
+}
+
+@keyframes ql-coin-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.3); color: #ffd700; }
+    100% { transform: scale(1); }
+}
+
+/* ── 9. Progress bar — animated gradient stripe ── */
+.ql-progress-fill {
+    background: linear-gradient(
+        90deg,
+        #5cb85c 0%,
+        #8bc34a 30%,
+        #a8e063 50%,
+        #8bc34a 70%,
+        #5cb85c 100%
+    ) !important;
+    background-size: 200% 100% !important;
+    animation: ql-progress-shine 3s ease-in-out infinite;
+}
+
+@keyframes ql-progress-shine {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+/* ── Reduced motion — respect user preference ── */
+@media (prefers-reduced-motion: reduce) {
+    .ql-badge-card.earned .ql-badge-image-wrap::after,
+    .ql-badge-card.earned .ql-badge-image,
+    .ql-coin-icon,
+    .ql-badge-coins .ql-mini-coin,
+    .ql-badge-card.earned,
+    .ql-fire-stage.lit .ql-fire-img,
+    .ql-badge-card.locked .ql-badge-image,
+    .ql-badge-glow,
+    .ql-progress-fill {
+        animation: none !important;
+    }
+}
+
+/* ============================================================================
    MOBILE RESPONSIVENESS
    ============================================================================ */
 
