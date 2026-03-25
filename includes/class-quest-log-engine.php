@@ -2,18 +2,21 @@
 /**
  * MFSD Quest Log — Badge Evaluation Engine
  * Checks wp_mfsd_task_progress and awards badges + wallet transactions.
+ * v1.0.2 — fixed personality_test task slug
  */
 
 if (!defined('ABSPATH')) exit;
 
 class MFSD_Quest_Log_Engine {
 
-    /* ── Badge → Task mappings per week ── */
+    /* ── Badge → Task mappings per week ──
+       These must match the exact task_slug values in wp_mfsd_task_progress.
+       If a badge isn't awarding, check the slug matches the database. */
     const WEEK_BADGES = array(
         1 => array(
             'badge_word_assoc'      => 'word_association',
             'badge_junk_jobs'       => 'junk_jobs',
-            'badge_who_am_i_1'      => 'personality_test',
+            'badge_who_am_i_1'      => 'personality_test_week_1',
             'badge_super_strengths' => 'super_strengths',
             'badge_rag_w1'          => 'rag_week_1',
         ),
@@ -34,10 +37,10 @@ class MFSD_Quest_Log_Engine {
     );
 
     /* ── Coin values ── */
-    const COIN_TASK        = 10;
-    const COIN_RAG_SPARK   = 10;
-    const COIN_RAG_EMBER   = 15;
-    const COIN_RAG_BLAZE   = 20;
+    const COIN_TASK          = 10;
+    const COIN_RAG_SPARK     = 10;
+    const COIN_RAG_EMBER     = 15;
+    const COIN_RAG_BLAZE     = 20;
     const COIN_WEEK_COMPLETE = 25;
     const COIN_WEEK_ACHIEVER = 50;
 
@@ -78,7 +81,6 @@ class MFSD_Quest_Log_Engine {
        PER-WEEK EVALUATION
        ================================================================ */
     private function evaluate_week($student_id, $week_num, $badges, $task_statuses) {
-        $all_task_slugs = array_values($badges);
         $completed_count = 0;
 
         foreach ($badges as $badge_slug => $task_slug) {

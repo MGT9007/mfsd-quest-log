@@ -1,8 +1,7 @@
 <?php
 /**
  * MFSD Quest Log — Frontend Renderer
- * Outputs the full Quest Log page HTML: header, badge grids, chests, RAG evolution.
- * v1.0.2 — inline styles on all images as belt-and-braces.
+ * v1.0.3 — correct week titles, WordPress avatar in header, inline image styles.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -12,7 +11,7 @@ class MFSD_Quest_Log_Renderer {
     /* ── Badge display config per week ── */
     const WEEK_CONFIG = array(
         1 => array(
-            'title' => 'Week 1 — Future Self',
+            'title' => 'Week 1 — Self-Awareness & The Solutions Lens',
             'badges' => array(
                 'badge_word_assoc'      => array('label' => 'Word Association', 'image' => 'badge_word_assoc.png'),
                 'badge_junk_jobs'       => array('label' => 'Junk Jobs',        'image' => 'badge_junk_jobs.png'),
@@ -22,7 +21,7 @@ class MFSD_Quest_Log_Renderer {
             ),
         ),
         2 => array(
-            'title' => 'Week 2 — Growth Mindset',
+            'title' => 'Week 2 — Interests, Barriers & Dreams into Plans',
             'badges' => array(
                 'badge_fav_subject' => array('label' => 'Favourite Subject', 'image' => 'badge_locked.png'),
                 'badge_barriers'    => array('label' => 'Barriers',          'image' => 'badge_locked.png'),
@@ -32,7 +31,7 @@ class MFSD_Quest_Log_Renderer {
             ),
         ),
         3 => array(
-            'title' => 'Week 3 — Marginal Gains',
+            'title' => 'Week 3 — High Performance & Future Direction',
             'badges' => array(
                 'badge_fifty_quid' => array('label' => '£50 on Success',  'image' => 'badge_locked.png'),
                 'badge_hp_wheel'   => array('label' => 'HP Wheel',        'image' => 'badge_locked.png'),
@@ -51,7 +50,7 @@ class MFSD_Quest_Log_Renderer {
         ?>
         <div class="mfsd-quest-log" id="mfsd-quest-log-root">
 
-            <?php $this->render_header($display_name, $balance, $character, $images_url); ?>
+            <?php $this->render_header($student_id, $display_name, $balance, $character, $images_url); ?>
 
             <?php foreach (self::WEEK_CONFIG as $week_num => $week): ?>
                 <?php $this->render_week_section($week_num, $week, $badges, $images_url); ?>
@@ -67,31 +66,23 @@ class MFSD_Quest_Log_Renderer {
     }
 
     /* ================================================================
-       HEADER — avatar, name, coin balance
+       HEADER — WordPress avatar, name, character subtitle, coins
        ================================================================ */
-    private function render_header($display_name, $balance, $character, $images_url) {
-        $avatar_src = $images_url . 'ui/avatar_f.png';
-        $character_src = null;
-
-        if ($character && !empty($character['filename'])) {
-            $character_src = $images_url . 'characters/' . $character['filename'];
-        }
+    private function render_header($student_id, $display_name, $balance, $character, $images_url) {
+        /* Use the student's WordPress/ProfilePress avatar, NOT the personality character */
+        $wp_avatar_url = get_avatar_url($student_id, array('size' => 128));
+        $fallback_src  = $images_url . 'ui/avatar_f.png';
+        $avatar_src    = $wp_avatar_url ? $wp_avatar_url : $fallback_src;
         ?>
         <div class="ql-header">
             <div class="ql-header-left">
                 <div class="ql-avatar-frame">
-                    <?php if ($character_src): ?>
-                        <img src="<?php echo esc_url($character_src); ?>"
-                             alt="<?php echo esc_attr($character['name'] ?? 'Avatar'); ?>"
-                             class="ql-avatar-img"
-                             width="64" height="64"
-                             style="width:64px;height:64px;max-width:64px;max-height:64px;object-fit:contain;"
-                             onerror="this.src='<?php echo esc_url($avatar_src); ?>'">
-                    <?php else: ?>
-                        <img src="<?php echo esc_url($avatar_src); ?>" alt="Avatar" class="ql-avatar-img"
-                             width="64" height="64"
-                             style="width:64px;height:64px;max-width:64px;max-height:64px;object-fit:contain;">
-                    <?php endif; ?>
+                    <img src="<?php echo esc_url($avatar_src); ?>"
+                         alt="<?php echo esc_attr($display_name); ?>"
+                         class="ql-avatar-img"
+                         width="64" height="64"
+                         style="width:64px;height:64px;max-width:64px;max-height:64px;object-fit:cover;border-radius:50%;"
+                         onerror="this.src='<?php echo esc_url($fallback_src); ?>'">
                 </div>
                 <div class="ql-header-info">
                     <h1 class="ql-player-name"><?php echo esc_html($display_name); ?></h1>
