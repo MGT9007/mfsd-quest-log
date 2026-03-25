@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MFSD Quest Log
  * Description: Student badge/reward system — dark gaming theme with gem badges, treasure chests, coin wallet, and Spark/Ember/Blaze RAG evolution.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: MisterT9007
  */
 
@@ -42,8 +42,8 @@ final class MFSD_Quest_Log {
        ================================================================ */
     public function register_assets() {
         $base = plugin_dir_url(__FILE__);
-        wp_register_style('mfsd-quest-log',  $base . 'assets/css/quest-log.css', array(), self::VERSION);
-        wp_register_script('mfsd-quest-log', $base . 'assets/js/quest-log.js',  array(), self::VERSION, true);
+        wp_register_style('mfsd-quest-log',  $base . 'assets/quest-log.css', array(), self::VERSION);
+        wp_register_script('mfsd-quest-log', $base . 'assets/quest-log.js',  array(), self::VERSION, true);
     }
 
     /* ================================================================

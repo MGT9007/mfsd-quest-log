@@ -2,6 +2,7 @@
 /**
  * MFSD Quest Log — Frontend Renderer
  * Outputs the full Quest Log page HTML: header, badge grids, chests, RAG evolution.
+ * v1.0.2 — inline styles on all images as belt-and-braces.
  */
 
 if (!defined('ABSPATH')) exit;
@@ -83,9 +84,13 @@ class MFSD_Quest_Log_Renderer {
                         <img src="<?php echo esc_url($character_src); ?>"
                              alt="<?php echo esc_attr($character['name'] ?? 'Avatar'); ?>"
                              class="ql-avatar-img"
+                             width="64" height="64"
+                             style="width:64px;height:64px;max-width:64px;max-height:64px;object-fit:contain;"
                              onerror="this.src='<?php echo esc_url($avatar_src); ?>'">
                     <?php else: ?>
-                        <img src="<?php echo esc_url($avatar_src); ?>" alt="Avatar" class="ql-avatar-img">
+                        <img src="<?php echo esc_url($avatar_src); ?>" alt="Avatar" class="ql-avatar-img"
+                             width="64" height="64"
+                             style="width:64px;height:64px;max-width:64px;max-height:64px;object-fit:contain;">
                     <?php endif; ?>
                 </div>
                 <div class="ql-header-info">
@@ -97,7 +102,9 @@ class MFSD_Quest_Log_Renderer {
             </div>
             <div class="ql-header-right">
                 <div class="ql-coin-balance">
-                    <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="Coins" class="ql-coin-icon">
+                    <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="Coins" class="ql-coin-icon"
+                         width="28" height="28"
+                         style="width:28px;height:28px;max-width:28px;max-height:28px;object-fit:contain;">
                     <span class="ql-coin-amount" id="ql-coin-amount"><?php echo (int) $balance; ?></span>
                 </div>
             </div>
@@ -115,7 +122,6 @@ class MFSD_Quest_Log_Renderer {
             if (isset($badges[$slug])) $earned_count++;
         }
         $total = count($task_badge_slugs);
-        $all_done = ($earned_count === $total);
 
         $complete_slug = 'badge_week' . $week_num . '_complete';
         $achiever_slug = 'badge_week' . $week_num . '_achiever';
@@ -135,56 +141,65 @@ class MFSD_Quest_Log_Renderer {
                 <?php foreach ($week['badges'] as $slug => $badge_config): ?>
                     <?php
                     $earned = isset($badges[$slug]);
-                    $is_who_am_i = ($slug === 'badge_who_am_i_1');
                     $badge_image = $earned ? ($images_url . 'badges/' . $badge_config['image']) : ($images_url . 'badges/badge_locked.png');
-
-                    /* Who Am I badge — use character portrait if earned */
-                    if ($is_who_am_i && $earned && isset($badges[$slug]['metadata']['character'])) {
-                        /* The character image renders inside a portal frame */
-                    }
-
                     $coins = $earned ? ($badges[$slug]['coins_awarded'] ?? 10) : null;
                     ?>
                     <div class="ql-badge-card <?php echo $earned ? 'earned' : 'locked'; ?>" data-badge="<?php echo esc_attr($slug); ?>">
-                        <div class="ql-badge-image-wrap">
+                        <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:hidden;position:relative;margin:0 auto 10px;">
                             <img src="<?php echo esc_url($badge_image); ?>"
                                  alt="<?php echo esc_attr($badge_config['label']); ?>"
-                                 class="ql-badge-image">
+                                 class="ql-badge-image"
+                                 width="80" height="80"
+                                 style="width:80px;height:80px;max-width:80px;max-height:80px;object-fit:contain;display:block;">
                             <?php if ($earned): ?>
                                 <div class="ql-badge-glow"></div>
                             <?php endif; ?>
                         </div>
                         <div class="ql-badge-label"><?php echo esc_html($badge_config['label']); ?></div>
                         <?php if ($earned && $coins): ?>
-                            <div class="ql-badge-coins">+<?php echo $coins; ?> <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"></div>
+                            <div class="ql-badge-coins">+<?php echo $coins; ?>
+                                <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                                     width="14" height="14"
+                                     style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
+                            </div>
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
 
-            <?php /* Treasure chests */ ?>
             <div class="ql-chests">
                 <?php
                 $complete_earned = isset($badges[$complete_slug]);
                 $achiever_earned = isset($badges[$achiever_slug]);
-
                 $complete_img = $complete_earned ? 'chest_complete.png' : 'chest_locked.png';
                 $achiever_img = $achiever_earned ? 'chest_achiever.png' : 'chest_locked.png';
                 ?>
                 <div class="ql-chest <?php echo $complete_earned ? 'earned' : 'locked'; ?>">
-                    <img src="<?php echo esc_url($images_url . 'chests/' . $complete_img); ?>" alt="Week Complete" class="ql-chest-img">
+                    <img src="<?php echo esc_url($images_url . 'chests/' . $complete_img); ?>" alt="Week Complete" class="ql-chest-img"
+                         width="64" height="64"
+                         style="width:64px;height:64px;max-width:64px;max-height:64px;object-fit:contain;">
                     <div class="ql-chest-label">Week Complete</div>
                     <?php if ($complete_earned): ?>
-                        <div class="ql-chest-coins">+25 <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"></div>
+                        <div class="ql-chest-coins">+25
+                            <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                                 width="14" height="14"
+                                 style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
+                        </div>
                     <?php else: ?>
                         <div class="ql-chest-hint">Complete all 5 tasks</div>
                     <?php endif; ?>
                 </div>
                 <div class="ql-chest <?php echo $achiever_earned ? 'earned' : 'locked'; ?>">
-                    <img src="<?php echo esc_url($images_url . 'chests/' . $achiever_img); ?>" alt="High Achiever" class="ql-chest-img">
+                    <img src="<?php echo esc_url($images_url . 'chests/' . $achiever_img); ?>" alt="High Achiever" class="ql-chest-img"
+                         width="64" height="64"
+                         style="width:64px;height:64px;max-width:64px;max-height:64px;object-fit:contain;">
                     <div class="ql-chest-label">High Achiever</div>
                     <?php if ($achiever_earned): ?>
-                        <div class="ql-chest-coins">+50 <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"></div>
+                        <div class="ql-chest-coins">+50
+                            <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                                 width="14" height="14"
+                                 style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
+                        </div>
                     <?php else: ?>
                         <div class="ql-chest-hint">Complete all 5 within 7 days</div>
                     <?php endif; ?>
@@ -195,7 +210,7 @@ class MFSD_Quest_Log_Renderer {
     }
 
     /* ================================================================
-       RAG EVOLUTION — Spark → Ember → Blaze
+       RAG EVOLUTION — Spark > Ember > Blaze
        ================================================================ */
     private function render_rag_evolution($badges, $images_url) {
         $stages = array(
@@ -217,13 +232,15 @@ class MFSD_Quest_Log_Renderer {
                         <img src="<?php echo esc_url($images_url . $img); ?>"
                              alt="<?php echo esc_attr($stage['name']); ?>"
                              class="ql-fire-img"
+                             width="72" height="72"
+                             style="width:72px;height:72px;max-width:72px;max-height:72px;object-fit:contain;"
                              onerror="this.style.display='none'">
                         <div class="ql-fire-label"><?php echo esc_html($stage['name']); ?></div>
                         <div class="ql-fire-week">Week <?php echo $num; ?> RAG</div>
                     </div>
                     <?php if ($num < 3): ?>
                         <div class="ql-fire-connector <?php echo $lit ? 'lit' : ''; ?>">
-                            <span class="ql-fire-arrow">→</span>
+                            <span class="ql-fire-arrow">&rarr;</span>
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>
