@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MFSD Quest Log
  * Description: Student badge/reward system — dark gaming theme with gem badges, treasure chests, coin wallet, and Spark/Ember/Blaze RAG evolution.
- * Version: 1.6.2
+ * Version: 1.6.4
  * Author: MisterT9007
  */
 
@@ -14,7 +14,7 @@ foreach (array('db', 'engine', 'wallet', 'renderer') as $f) {
 }
 
 final class MFSD_Quest_Log {
-    const VERSION      = '1.6.2';
+    const VERSION      = '1.6.4';
     const NONCE_ACTION = 'mfsd_quest_log_nonce';
 
     public static function instance() {
@@ -94,6 +94,9 @@ final class MFSD_Quest_Log {
         wp_enqueue_style('mfsd-quest-log');
         wp_enqueue_script('mfsd-quest-log');
 
+        /* Output animation toggle CSS based on admin settings */
+        wp_add_inline_style('mfsd-quest-log', $this->get_animation_css());
+
         /* Force dark theme body class */
         add_filter('body_class', function($classes) {
             $classes[] = 'mfsd-quest-log-active';
@@ -101,6 +104,46 @@ final class MFSD_Quest_Log {
         });
 
         return $renderer->render($student_id, $badges, $balance, $character_data, $display_name, $images_url);
+    }
+
+    /* ================================================================
+       ANIMATION CSS — reads admin settings, returns inline CSS overrides
+       ================================================================ */
+    private function get_animation_css() {
+        $css = '';
+
+        /* CSS custom properties for configurable timing */
+        $shimmer_dur   = (int) get_option('mfsd_quest_anim_shimmer_interval', 5);
+        $coin_spin_dur = (int) get_option('mfsd_quest_anim_coin_spin_interval', 5);
+        $css .= ".mfsd-quest-log { --ql-shimmer-dur: {$shimmer_dur}s; --ql-coin-spin-dur: {$coin_spin_dur}s; }\n";
+
+        /* Disable animations that are toggled off */
+        if (get_option('mfsd_quest_anim_shimmer', '0') !== '1') {
+            $css .= ".ql-badge-card.earned .ql-badge-image-wrap::after { animation: none !important; content: none !important; }\n";
+        }
+        if (get_option('mfsd_quest_anim_coin_spin', '1') !== '1') {
+            $css .= ".ql-coin-icon { animation: none !important; }\n";
+        }
+        if (get_option('mfsd_quest_anim_float', '1') !== '1') {
+            $css .= ".ql-badge-card.earned .ql-badge-image { animation: none !important; }\n";
+        }
+        if (get_option('mfsd_quest_anim_border_glow', '1') !== '1') {
+            $css .= ".ql-badge-card.earned { animation: none !important; }\n";
+        }
+        if (get_option('mfsd_quest_anim_fire_flicker', '1') !== '1') {
+            $css .= ".ql-fire-stage.lit .ql-fire-img { animation: none !important; }\n";
+        }
+        if (get_option('mfsd_quest_anim_chest_wobble', '1') !== '1') {
+            $css .= ".ql-chest.earned:hover .ql-chest-img { animation: none !important; }\n";
+        }
+        if (get_option('mfsd_quest_anim_locked_pulse', '1') !== '1') {
+            $css .= ".ql-badge-card.locked .ql-badge-image { animation: none !important; }\n";
+        }
+        if (get_option('mfsd_quest_anim_progress_shine', '1') !== '1') {
+            $css .= ".ql-progress-fill { animation: none !important; background-size: 100% 100% !important; }\n";
+        }
+
+        return $css;
     }
 
     /* ================================================================

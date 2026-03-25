@@ -1,5 +1,5 @@
 /* ============================================================================
-   MFSD QUEST LOG — Dark Gaming Theme v1.0.2
+   MFSD QUEST LOG — Dark Gaming Theme v1.2.0
    ============================================================================ */
 
 /* ── Dark theme body override ── */
@@ -183,13 +183,6 @@ body.mfsd-quest-log-active {
     background: linear-gradient(90deg, #5cb85c, #8bc34a);
     border-radius: 5px;
     transition: width 0.6s ease;
-}
-
-.ql-progress-text {
-    font-size: 14px;
-    font-weight: 600;
-    color: #8b949e;
-    min-width: 30px;
 }
 
 /* ── Badge grid ── */
@@ -542,36 +535,12 @@ body.mfsd-quest-log-active {
     font-size: 13px;
 }
 
-.ql-tx-row:last-child {
-    border-bottom: none;
-}
-
-.ql-tx-desc {
-    color: #c9d1d9;
-    flex: 1;
-    min-width: 0;
-}
-
-.ql-tx-amount {
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-left: 12px;
-}
-
-.ql-tx-amount.positive {
-    color: #5cb85c;
-}
-
-.ql-tx-amount.negative {
-    color: #d9534f;
-}
-
-.ql-tx-date {
-    font-size: 11px;
-    color: #8b949e;
-    margin-left: 12px;
-    flex-shrink: 0;
-}
+.ql-tx-row:last-child { border-bottom: none; }
+.ql-tx-desc { color: #c9d1d9; flex: 1; min-width: 0; }
+.ql-tx-amount { font-weight: 700; flex-shrink: 0; margin-left: 12px; }
+.ql-tx-amount.positive { color: #5cb85c; }
+.ql-tx-amount.negative { color: #d9534f; }
+.ql-tx-date { font-size: 11px; color: #8b949e; margin-left: 12px; flex-shrink: 0; }
 
 /* ── Buttons ── */
 .ql-btn {
@@ -587,27 +556,16 @@ body.mfsd-quest-log-active {
     transition: background 0.2s, border-color 0.2s;
 }
 
-.ql-btn:hover {
-    background: #30363d;
-    border-color: #8b949e;
-}
-
-.ql-btn-secondary {
-    background: transparent;
-    border-color: #30363d;
-    color: #8b949e;
-}
-
-.ql-btn-secondary:hover {
-    color: #c9d1d9;
-    background: #21262d;
-}
+.ql-btn:hover { background: #30363d; border-color: #8b949e; }
+.ql-btn-secondary { background: transparent; border-color: #30363d; color: #8b949e; }
+.ql-btn-secondary:hover { color: #c9d1d9; background: #21262d; }
 
 /* ============================================================================
-   BADGE ANIMATIONS — subtle ambient effects on earned badges
+   BADGE ANIMATIONS — all defined here, toggled by inline CSS from admin
+   CSS custom properties: --ql-shimmer-dur, --ql-coin-spin-dur
    ============================================================================ */
 
-/* ── 1. Shimmer sweep — diagonal light sweep across earned badge images ── */
+/* ── Shimmer sweep ── */
 .ql-badge-card.earned .ql-badge-image-wrap::after {
     content: '';
     position: absolute;
@@ -615,36 +573,34 @@ body.mfsd-quest-log-active {
     background: linear-gradient(
         105deg,
         transparent 40%,
-        rgba(255, 255, 255, 0.15) 45%,
-        rgba(255, 255, 255, 0.25) 50%,
-        rgba(255, 255, 255, 0.15) 55%,
+        rgba(255, 255, 255, 0.12) 45%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.12) 55%,
         transparent 60%
     );
     transform: translateX(-120%);
-    animation: ql-shimmer 4s ease-in-out infinite;
+    animation: ql-shimmer var(--ql-shimmer-dur, 5s) ease-in-out infinite;
     z-index: 5;
     pointer-events: none;
     border-radius: inherit;
 }
 
-/* Stagger shimmer per badge — each one catches the light at a different moment */
-.ql-badge-card.earned:nth-child(2) .ql-badge-image-wrap::after { animation-delay: 0.8s; }
-.ql-badge-card.earned:nth-child(3) .ql-badge-image-wrap::after { animation-delay: 1.6s; }
-.ql-badge-card.earned:nth-child(4) .ql-badge-image-wrap::after { animation-delay: 2.4s; }
-.ql-badge-card.earned:nth-child(5) .ql-badge-image-wrap::after { animation-delay: 3.2s; }
+.ql-badge-card.earned:nth-child(2) .ql-badge-image-wrap::after { animation-delay: 1s; }
+.ql-badge-card.earned:nth-child(3) .ql-badge-image-wrap::after { animation-delay: 2s; }
+.ql-badge-card.earned:nth-child(4) .ql-badge-image-wrap::after { animation-delay: 3s; }
+.ql-badge-card.earned:nth-child(5) .ql-badge-image-wrap::after { animation-delay: 4s; }
 
 @keyframes ql-shimmer {
     0%, 100% { transform: translateX(-120%); }
-    60%      { transform: translateX(120%); }
-    61%      { transform: translateX(-120%); }
+    50%      { transform: translateX(120%); }
+    51%      { transform: translateX(-120%); }
 }
 
-/* ── 2. Gentle float — earned badge images bob up and down ── */
+/* ── Gentle float ── */
 .ql-badge-card.earned .ql-badge-image {
     animation: ql-float 3.5s ease-in-out infinite;
 }
 
-/* Stagger float so badges don't bob in unison */
 .ql-badge-card.earned:nth-child(1) .ql-badge-image { animation-delay: 0s; }
 .ql-badge-card.earned:nth-child(2) .ql-badge-image { animation-delay: 0.7s; }
 .ql-badge-card.earned:nth-child(3) .ql-badge-image { animation-delay: 1.4s; }
@@ -656,14 +612,9 @@ body.mfsd-quest-log-active {
     50%      { transform: translateY(-4px); }
 }
 
-/* ── 3. Coin spin — coin icons do a subtle flip every few seconds ── */
+/* ── Coin spin — header only ── */
 .ql-coin-icon {
-    animation: ql-coin-spin 5s ease-in-out infinite;
-}
-
-.ql-badge-coins .ql-mini-coin {
-    animation: ql-coin-spin 4s ease-in-out infinite;
-    animation-delay: 1s;
+    animation: ql-coin-spin var(--ql-coin-spin-dur, 5s) ease-in-out infinite;
 }
 
 @keyframes ql-coin-spin {
@@ -672,7 +623,7 @@ body.mfsd-quest-log-active {
     95%           { transform: rotateY(360deg); }
 }
 
-/* ── 4. Earned card border glow — animated border colour on earned badges ── */
+/* ── Border glow on earned cards ── */
 .ql-badge-card.earned {
     animation: ql-border-glow 3s ease-in-out infinite;
 }
@@ -687,7 +638,7 @@ body.mfsd-quest-log-active {
     50%      { border-color: rgba(240, 173, 78, 0.6);  box-shadow: 0 0 12px rgba(240, 173, 78, 0.12); }
 }
 
-/* ── 5. Fire flicker — lit RAG stages have a subtle flame effect ── */
+/* ── Fire flicker ── */
 .ql-fire-stage.lit .ql-fire-img {
     animation: ql-fire-flicker 2s ease-in-out infinite;
 }
@@ -702,7 +653,7 @@ body.mfsd-quest-log-active {
     75%      { transform: scale(1.02) rotate(-0.5deg); filter: brightness(1.15); }
 }
 
-/* ── 6. Chest wobble — earned chests have a playful jiggle on hover ── */
+/* ── Chest wobble on hover ── */
 .ql-chest.earned:hover .ql-chest-img {
     animation: ql-chest-wobble 0.5s ease-in-out;
 }
@@ -716,17 +667,17 @@ body.mfsd-quest-log-active {
     100% { transform: rotate(0deg); }
 }
 
-/* ── 7. Locked badges — slow dark pulse to hint they're waiting ── */
+/* ── Locked badge pulse — more noticeable than v1 ── */
 .ql-badge-card.locked .ql-badge-image {
-    animation: ql-locked-pulse 4s ease-in-out infinite;
+    animation: ql-locked-pulse 3s ease-in-out infinite;
 }
 
 @keyframes ql-locked-pulse {
-    0%, 100% { opacity: 0.5; }
-    50%      { opacity: 0.7; }
+    0%, 100% { opacity: 0.4; filter: grayscale(70%) brightness(0.7); }
+    50%      { opacity: 0.8; filter: grayscale(40%) brightness(0.9); }
 }
 
-/* ── 8. Coin balance — pop animation when value changes (triggered by JS class) ── */
+/* ── Coin pop — triggered by JS adding .ql-coin-pop class ── */
 .ql-coin-amount.ql-coin-pop {
     animation: ql-coin-pop 0.4s ease-out;
 }
@@ -737,7 +688,7 @@ body.mfsd-quest-log-active {
     100% { transform: scale(1); }
 }
 
-/* ── 9. Progress bar — animated gradient stripe ── */
+/* ── Progress bar animated shine ── */
 .ql-progress-fill {
     background: linear-gradient(
         90deg,
@@ -761,7 +712,6 @@ body.mfsd-quest-log-active {
     .ql-badge-card.earned .ql-badge-image-wrap::after,
     .ql-badge-card.earned .ql-badge-image,
     .ql-coin-icon,
-    .ql-badge-coins .ql-mini-coin,
     .ql-badge-card.earned,
     .ql-fire-stage.lit .ql-fire-img,
     .ql-badge-card.locked .ql-badge-image,
@@ -776,107 +726,28 @@ body.mfsd-quest-log-active {
    ============================================================================ */
 
 @media (max-width: 768px) {
-    .ql-badge-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
-
-    .ql-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 16px;
-    }
-
-    .ql-header-right {
-        align-self: flex-end;
-    }
-
-    .ql-player-name {
-        font-size: 18px;
-    }
-
-    .ql-week-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .ql-chests {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .ql-chest {
-        min-width: 200px;
-    }
-
-    .ql-fire-path {
-        gap: 8px;
-    }
-
-    .ql-fire-stage {
-        min-width: 90px;
-        padding: 12px;
-    }
-
-    .ql-fire-stage img,
-    .ql-fire-img {
-        width: 56px !important;
-        height: 56px !important;
-        max-width: 56px !important;
-        max-height: 56px !important;
-    }
-
-    .ql-wallet-balance-box {
-        padding: 16px 28px;
-    }
-
-    .ql-wallet-balance-value {
-        font-size: 26px;
-    }
+    .ql-badge-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .ql-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
+    .ql-header-right { align-self: flex-end; }
+    .ql-player-name { font-size: 18px; }
+    .ql-week-header { flex-direction: column; align-items: flex-start; }
+    .ql-chests { flex-direction: column; align-items: center; }
+    .ql-chest { min-width: 200px; }
+    .ql-fire-path { gap: 8px; }
+    .ql-fire-stage { min-width: 90px; padding: 12px; }
+    .ql-fire-stage img, .ql-fire-img { width: 56px !important; height: 56px !important; max-width: 56px !important; max-height: 56px !important; }
+    .ql-wallet-balance-box { padding: 16px 28px; }
+    .ql-wallet-balance-value { font-size: 26px; }
 }
 
 @media (max-width: 480px) {
-    .ql-badge-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-    }
-
-    .ql-badge-image-wrap img,
-    .ql-badge-image {
-        width: 64px !important;
-        height: 64px !important;
-        max-width: 64px !important;
-        max-height: 64px !important;
-    }
-
-    .ql-badge-image-wrap {
-        width: 64px;
-        height: 64px;
-        max-width: 64px;
-        max-height: 64px;
-    }
-
-    .ql-avatar-frame {
-        width: 56px !important;
-        height: 56px !important;
-        min-width: 56px;
-    }
-
-    .ql-avatar-frame img {
-        width: 48px !important;
-        height: 48px !important;
-        max-width: 48px !important;
-        max-height: 48px !important;
-    }
-
-    .ql-fire-path {
-        flex-direction: column;
-    }
-
-    .ql-fire-connector {
-        transform: rotate(90deg);
-    }
+    .ql-badge-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .ql-badge-image-wrap img, .ql-badge-image { width: 64px !important; height: 64px !important; max-width: 64px !important; max-height: 64px !important; }
+    .ql-badge-image-wrap { width: 64px; height: 64px; max-width: 64px; max-height: 64px; }
+    .ql-avatar-frame { width: 56px !important; height: 56px !important; min-width: 56px; }
+    .ql-avatar-frame img { width: 48px !important; height: 48px !important; max-width: 48px !important; max-height: 48px !important; }
+    .ql-fire-path { flex-direction: column; }
+    .ql-fire-connector { transform: rotate(90deg); }
 }
 
 /* ============================================================================
@@ -884,21 +755,8 @@ body.mfsd-quest-log-active {
    ============================================================================ */
 
 @media print {
-    body.mfsd-quest-log-active {
-        background: white !important;
-    }
-
-    .mfsd-quest-log {
-        color: #333;
-    }
-
-    .ql-header, .ql-week-section, .ql-rag-evolution, .ql-wallet-summary {
-        background: white;
-        border-color: #ddd;
-        page-break-inside: avoid;
-    }
-
-    .ql-badge-card.locked {
-        opacity: 0.3;
-    }
+    body.mfsd-quest-log-active { background: white !important; }
+    .mfsd-quest-log { color: #333; }
+    .ql-header, .ql-week-section, .ql-rag-evolution, .ql-wallet-summary { background: white; border-color: #ddd; page-break-inside: avoid; }
+    .ql-badge-card.locked { opacity: 0.3; }
 }

@@ -1,7 +1,8 @@
 <?php
 /**
  * MFSD Quest Log — Admin Page
- * Student badge overview, wallet management, and data tools.
+ * Student badge overview, wallet management, animation settings, and data tools.
+ * v1.6.4
  */
 
 if (!defined('ABSPATH')) exit;
@@ -49,14 +50,40 @@ if (isset($_POST['mfsd_quest_reevaluate']) && check_admin_referer('mfsd_quest_re
 if (isset($_POST['mfsd_quest_save_settings']) && check_admin_referer('mfsd_quest_settings')) {
     $cpm = max(1, (int) ($_POST['coins_per_minute'] ?? 10));
     update_option('mfsd_quest_coins_per_minute', $cpm);
+
+    /* Animation settings */
+    update_option('mfsd_quest_anim_shimmer',          isset($_POST['anim_shimmer']) ? '1' : '0');
+    update_option('mfsd_quest_anim_shimmer_interval',  max(2, min(30, (int) ($_POST['anim_shimmer_interval'] ?? 5))));
+    update_option('mfsd_quest_anim_coin_spin',         isset($_POST['anim_coin_spin']) ? '1' : '0');
+    update_option('mfsd_quest_anim_coin_spin_interval', max(2, min(30, (int) ($_POST['anim_coin_spin_interval'] ?? 5))));
+    update_option('mfsd_quest_anim_float',             isset($_POST['anim_float']) ? '1' : '0');
+    update_option('mfsd_quest_anim_border_glow',       isset($_POST['anim_border_glow']) ? '1' : '0');
+    update_option('mfsd_quest_anim_fire_flicker',      isset($_POST['anim_fire_flicker']) ? '1' : '0');
+    update_option('mfsd_quest_anim_chest_wobble',      isset($_POST['anim_chest_wobble']) ? '1' : '0');
+    update_option('mfsd_quest_anim_locked_pulse',      isset($_POST['anim_locked_pulse']) ? '1' : '0');
+    update_option('mfsd_quest_anim_progress_shine',    isset($_POST['anim_progress_shine']) ? '1' : '0');
+
     echo '<div class="notice notice-success"><p>Settings saved.</p></div>';
 }
 
-/* ── Load overview data ── */
+/* ── Load data ── */
 $student_counts = $db->get_all_student_badge_counts();
 $coins_per_min  = (int) get_option('mfsd_quest_coins_per_minute', 10);
 
-/* ── Get students list ── */
+/* Animation settings — defaults */
+$anim = array(
+    'shimmer'           => get_option('mfsd_quest_anim_shimmer', '0') === '1',
+    'shimmer_interval'  => (int) get_option('mfsd_quest_anim_shimmer_interval', 5),
+    'coin_spin'         => get_option('mfsd_quest_anim_coin_spin', '1') === '1',
+    'coin_spin_interval'=> (int) get_option('mfsd_quest_anim_coin_spin_interval', 5),
+    'float'             => get_option('mfsd_quest_anim_float', '1') === '1',
+    'border_glow'       => get_option('mfsd_quest_anim_border_glow', '1') === '1',
+    'fire_flicker'      => get_option('mfsd_quest_anim_fire_flicker', '1') === '1',
+    'chest_wobble'      => get_option('mfsd_quest_anim_chest_wobble', '1') === '1',
+    'locked_pulse'      => get_option('mfsd_quest_anim_locked_pulse', '1') === '1',
+    'progress_shine'    => get_option('mfsd_quest_anim_progress_shine', '1') === '1',
+);
+
 $students = get_users(array('role' => 'student', 'number' => 100, 'orderby' => 'display_name'));
 ?>
 
@@ -78,12 +105,7 @@ $students = get_users(array('role' => 'student', 'number' => 100, 'orderby' => '
         <?php else: ?>
             <table class="widefat striped">
                 <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Badges Earned</th>
-                        <th>Total Coins Earned</th>
-                        <th>Current Balance</th>
-                    </tr>
+                    <tr><th>Student</th><th>Badges Earned</th><th>Total Coins Earned</th><th>Current Balance</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($student_counts as $row):
@@ -224,17 +246,117 @@ $students = get_users(array('role' => 'student', 'number' => 100, 'orderby' => '
 
     <!-- SETTINGS TAB -->
     <div id="ql-tab-settings" class="ql-admin-tab" style="display:none;">
-        <form method="post" style="background:#fff;padding:20px;border:1px solid #ddd;border-radius:8px;max-width:500px;">
+        <form method="post">
             <?php wp_nonce_field('mfsd_quest_settings'); ?>
-            <table class="form-table">
-                <tr>
-                    <th>Coins per minute (Arcade)</th>
-                    <td>
-                        <input type="number" name="coins_per_minute" min="1" max="100" value="<?php echo $coins_per_min; ?>">
-                        <p class="description">Default: 10 coins = 1 minute of arcade time.</p>
-                    </td>
-                </tr>
-            </table>
+
+            <!-- Arcade Economy -->
+            <div style="background:#fff;padding:20px;border:1px solid #ddd;border-radius:8px;max-width:700px;margin-bottom:24px;">
+                <h3 style="margin-top:0;">Arcade Economy</h3>
+                <table class="form-table">
+                    <tr>
+                        <th>Coins per minute</th>
+                        <td>
+                            <input type="number" name="coins_per_minute" min="1" max="100" value="<?php echo $coins_per_min; ?>">
+                            <p class="description">Default: 10 coins = 1 minute of arcade time.</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Animation Settings -->
+            <div style="background:#fff;padding:20px;border:1px solid #ddd;border-radius:8px;max-width:700px;margin-bottom:24px;">
+                <h3 style="margin-top:0;">Badge Animations</h3>
+                <p class="description" style="margin-bottom:16px;">Control which animations are active on the Quest Log page. Changes apply immediately on save.</p>
+
+                <table class="form-table" style="margin-top:0;">
+                    <!-- Shimmer -->
+                    <tr>
+                        <th>
+                            <label for="anim_shimmer">Shimmer Sweep</label>
+                            <p class="description" style="font-weight:normal;">Diagonal light sweep across earned badges</p>
+                        </th>
+                        <td>
+                            <label><input type="checkbox" name="anim_shimmer" id="anim_shimmer" value="1" <?php checked($anim['shimmer']); ?>> Enabled</label>
+                            <br><br>
+                            <label>Interval:
+                                <input type="number" name="anim_shimmer_interval" min="2" max="30" value="<?php echo $anim['shimmer_interval']; ?>" style="width:60px;"> seconds
+                            </label>
+                            <p class="description">Time between each shimmer sweep. Higher = more subtle.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Coin Spin -->
+                    <tr>
+                        <th>
+                            <label for="anim_coin_spin">Coin Spin</label>
+                            <p class="description" style="font-weight:normal;">Header wallet coin flips on its axis</p>
+                        </th>
+                        <td>
+                            <label><input type="checkbox" name="anim_coin_spin" id="anim_coin_spin" value="1" <?php checked($anim['coin_spin']); ?>> Enabled</label>
+                            <br><br>
+                            <label>Interval:
+                                <input type="number" name="anim_coin_spin_interval" min="2" max="30" value="<?php echo $anim['coin_spin_interval']; ?>" style="width:60px;"> seconds
+                            </label>
+                            <p class="description">Time between each coin flip.</p>
+                        </td>
+                    </tr>
+
+                    <!-- Float -->
+                    <tr>
+                        <th>
+                            <label for="anim_float">Gentle Float</label>
+                            <p class="description" style="font-weight:normal;">Earned badges bob up and down</p>
+                        </th>
+                        <td><label><input type="checkbox" name="anim_float" id="anim_float" value="1" <?php checked($anim['float']); ?>> Enabled</label></td>
+                    </tr>
+
+                    <!-- Border Glow -->
+                    <tr>
+                        <th>
+                            <label for="anim_border_glow">Border Glow</label>
+                            <p class="description" style="font-weight:normal;">Earned badge cards pulse with gold border</p>
+                        </th>
+                        <td><label><input type="checkbox" name="anim_border_glow" id="anim_border_glow" value="1" <?php checked($anim['border_glow']); ?>> Enabled</label></td>
+                    </tr>
+
+                    <!-- Fire Flicker -->
+                    <tr>
+                        <th>
+                            <label for="anim_fire_flicker">Fire Flicker</label>
+                            <p class="description" style="font-weight:normal;">Lit RAG stages wobble like flames</p>
+                        </th>
+                        <td><label><input type="checkbox" name="anim_fire_flicker" id="anim_fire_flicker" value="1" <?php checked($anim['fire_flicker']); ?>> Enabled</label></td>
+                    </tr>
+
+                    <!-- Chest Wobble -->
+                    <tr>
+                        <th>
+                            <label for="anim_chest_wobble">Chest Wobble</label>
+                            <p class="description" style="font-weight:normal;">Earned treasure chests jiggle on hover</p>
+                        </th>
+                        <td><label><input type="checkbox" name="anim_chest_wobble" id="anim_chest_wobble" value="1" <?php checked($anim['chest_wobble']); ?>> Enabled</label></td>
+                    </tr>
+
+                    <!-- Locked Pulse -->
+                    <tr>
+                        <th>
+                            <label for="anim_locked_pulse">Locked Pulse</label>
+                            <p class="description" style="font-weight:normal;">Locked badges breathe in and out</p>
+                        </th>
+                        <td><label><input type="checkbox" name="anim_locked_pulse" id="anim_locked_pulse" value="1" <?php checked($anim['locked_pulse']); ?>> Enabled</label></td>
+                    </tr>
+
+                    <!-- Progress Bar Shine -->
+                    <tr>
+                        <th>
+                            <label for="anim_progress_shine">Progress Bar Shine</label>
+                            <p class="description" style="font-weight:normal;">Scrolling gradient stripe on progress bars</p>
+                        </th>
+                        <td><label><input type="checkbox" name="anim_progress_shine" id="anim_progress_shine" value="1" <?php checked($anim['progress_shine']); ?>> Enabled</label></td>
+                    </tr>
+                </table>
+            </div>
+
             <button type="submit" name="mfsd_quest_save_settings" class="button button-primary">Save Settings</button>
         </form>
     </div>
