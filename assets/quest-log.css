@@ -1,10 +1,50 @@
 /* ============================================================================
-   MFSD QUEST LOG — Dark Gaming Theme v1.7.0
+   MFSD QUEST LOG — Dark Gaming Theme v1.2.0
    ============================================================================ */
 
-/* ── Dark theme body override ── */
+/* ── Dark theme body override + circuit board pattern ── */
 body.mfsd-quest-log-active {
-    background: #0d1117 !important;
+    background: #0a0e1a !important;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cdefs%3E%3Cstyle%3Eline%7Bstroke:%23162040;stroke-width:0.5%7Dcircle%7Bfill:%23162040%7D%3C/style%3E%3C/defs%3E%3Cline x1='0' y1='40' x2='60' y2='40'/%3E%3Cline x1='60' y1='40' x2='60' y2='100'/%3E%3Cline x1='60' y1='100' x2='140' y2='100'/%3E%3Cline x1='140' y1='100' x2='140' y2='40'/%3E%3Cline x1='140' y1='40' x2='200' y2='40'/%3E%3Cline x1='100' y1='0' x2='100' y2='60'/%3E%3Cline x1='100' y1='60' x2='160' y2='60'/%3E%3Cline x1='160' y1='60' x2='160' y2='160'/%3E%3Cline x1='160' y1='160' x2='40' y2='160'/%3E%3Cline x1='40' y1='160' x2='40' y2='200'/%3E%3Cline x1='0' y1='140' x2='80' y2='140'/%3E%3Cline x1='80' y1='140' x2='80' y2='180'/%3E%3Cline x1='80' y1='180' x2='200' y2='180'/%3E%3Ccircle cx='60' cy='40' r='2.5'/%3E%3Ccircle cx='60' cy='100' r='2.5'/%3E%3Ccircle cx='140' cy='100' r='2.5'/%3E%3Ccircle cx='140' cy='40' r='2.5'/%3E%3Ccircle cx='100' cy='60' r='2.5'/%3E%3Ccircle cx='160' cy='60' r='2.5'/%3E%3Ccircle cx='160' cy='160' r='2.5'/%3E%3Ccircle cx='40' cy='160' r='2.5'/%3E%3Ccircle cx='80' cy='140' r='2.5'/%3E%3Ccircle cx='80' cy='180' r='2.5'/%3E%3C/svg%3E") !important;
+    background-size: 200px 200px !important;
+}
+
+/* Override ALL theme content wrappers between body and quest log */
+body.mfsd-quest-log-active #wrapper,
+body.mfsd-quest-log-active #content,
+body.mfsd-quest-log-active #primary,
+body.mfsd-quest-log-active .site-content,
+body.mfsd-quest-log-active .entry-content,
+body.mfsd-quest-log-active .post-content,
+body.mfsd-quest-log-active .page-content,
+body.mfsd-quest-log-active .container-full,
+body.mfsd-quest-log-active .content-area,
+body.mfsd-quest-log-active article,
+body.mfsd-quest-log-active .blog-grid-view-post,
+body.mfsd-quest-log-active section,
+body.mfsd-quest-log-active .row,
+body.mfsd-quest-log-active .col,
+body.mfsd-quest-log-active [class*="col-"] {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Hide sidebar on quest log page — full-width dark experience */
+body.mfsd-quest-log-active .sidebar,
+body.mfsd-quest-log-active #secondary,
+body.mfsd-quest-log-active aside.widget-area,
+body.mfsd-quest-log-active .three-breadcrumb-area {
+    display: none !important;
+}
+
+/* Make the content area full width when sidebar hidden */
+body.mfsd-quest-log-active .content-area,
+body.mfsd-quest-log-active #primary,
+body.mfsd-quest-log-active .blog-grid-view-post {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
 }
 
 /* ── Wrapper ── */
@@ -153,53 +193,6 @@ body.mfsd-quest-log-active {
     margin-bottom: 20px;
     gap: 16px;
     flex-wrap: wrap;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-    border-radius: 8px;
-    padding: 4px 0;
-    transition: opacity 0.2s;
-}
-
-.ql-week-header:hover {
-    opacity: 0.85;
-}
-
-.ql-week-header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-}
-
-.ql-week-chevron {
-    display: inline-block;
-    font-size: 12px;
-    color: #8b949e;
-    transition: transform 0.3s ease;
-    line-height: 1;
-}
-
-.ql-collapsed .ql-week-chevron {
-    transform: rotate(-90deg);
-}
-
-.ql-collapsed .ql-week-header {
-    margin-bottom: 0;
-}
-
-/* ── Collapsible week body ── */
-.ql-week-body {
-    overflow: hidden;
-    max-height: 800px;
-    opacity: 1;
-    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
-}
-
-.ql-collapsed .ql-week-body {
-    max-height: 0;
-    opacity: 0;
-    pointer-events: none;
 }
 
 .ql-week-title {
@@ -507,191 +500,65 @@ body.mfsd-quest-log-active {
 }
 
 /* ============================================================================
-   COIN LINK — header balance links to wallet page
+   WALLET SUMMARY
    ============================================================================ */
 
-a.ql-coin-link {
-    text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-}
-
-a.ql-coin-link:hover {
-    transform: scale(1.06);
-    box-shadow: 0 0 16px rgba(240, 173, 78, 0.3);
-}
-
-/* ============================================================================
-   WALLET PAGE — [mfsd_coin_wallet]
-   ============================================================================ */
-
-.ql-back-link {
-    display: inline-block;
-    color: #8b949e;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 20px;
-    transition: color 0.2s;
-}
-
-.ql-back-link:hover {
-    color: #f0ad4e;
-}
-
-.ql-wallet-hero {
-    text-align: center;
-    padding: 32px 24px 28px;
-    background: linear-gradient(135deg, #2d1f00 0%, #3d2800 60%, #1a1f2e 100%);
-    border: 1px solid #f0ad4e44;
-    border-radius: 16px;
-    margin-bottom: 24px;
-}
-
-.ql-wallet-hero-coin {
-    margin: 0 auto 12px;
-    animation: ql-coin-spin 5s ease-in-out infinite;
-}
-
-.ql-wallet-hero-title {
-    margin: 0 0 4px;
-    font-size: 28px;
-    font-weight: 700;
-    color: #f0ad4e;
-}
-
-.ql-wallet-hero-name {
-    margin: 0;
-    font-size: 14px;
-    color: #8b949e;
-}
-
-.ql-wallet-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.ql-wallet-stat-card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 16px;
-    padding: 24px 16px;
-    text-align: center;
-}
-
-.ql-wallet-stat-card.ql-wallet-stat-balance {
-    border-color: #f0ad4e44;
-    background: linear-gradient(180deg, #161b22 0%, #1a1a0e 100%);
-}
-
-.ql-wallet-stat-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #8b949e;
-    margin-bottom: 8px;
-}
-
-.ql-wallet-stat-value {
-    font-size: 36px;
-    font-weight: 700;
-    color: #f0ad4e;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.1;
-}
-
-.ql-wallet-stat-balance .ql-wallet-stat-value {
-    font-size: 42px;
-}
-
-.ql-wallet-stat-unit {
-    font-size: 12px;
-    color: #8b949e;
-    margin-top: 4px;
-}
-
-.ql-wallet-rate-info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background: #21262d;
-    border: 1px solid #30363d;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #c9d1d9;
-    margin-bottom: 28px;
-    text-align: center;
-}
-
-.ql-wallet-history-section {
+.ql-wallet-summary {
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 16px;
     padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
 }
 
-.ql-wallet-history-section .ql-section-title {
-    margin-bottom: 16px;
-}
-
-.ql-wallet-history-list {
-    max-height: 500px;
-    overflow-y: auto;
-}
-
-/* Scrollbar for history */
-.ql-wallet-history-list::-webkit-scrollbar { width: 6px; }
-.ql-wallet-history-list::-webkit-scrollbar-track { background: #0d1117; border-radius: 3px; }
-.ql-wallet-history-list::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
-.ql-wallet-history-list::-webkit-scrollbar-thumb:hover { background: #8b949e; }
-
-/* Wallet page transaction rows — enhanced layout */
-.mfsd-wallet-page .ql-tx-row {
-    display: flex;
-    justify-content: space-between;
+.ql-wallet-balance-box {
+    display: inline-flex;
+    flex-direction: column;
     align-items: center;
-    padding: 12px 14px;
-    border-bottom: 1px solid #21262d;
-    font-size: 13px;
-    gap: 12px;
+    background: linear-gradient(135deg, #2d1f00 0%, #3d2800 100%);
+    border: 1px solid #f0ad4e44;
+    border-radius: 16px;
+    padding: 20px 40px;
+    margin: 16px 0;
 }
 
-.ql-tx-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-}
-
-.ql-tx-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-}
-
-.ql-tx-type {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
+.ql-wallet-balance-label {
+    font-size: 12px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    flex-shrink: 0;
+    letter-spacing: 1px;
+    color: #8b949e;
+    margin-bottom: 4px;
 }
 
-.ql-tx-type-earn   { background: #1a3a1a; color: #5cb85c; }
-.ql-tx-type-bonus  { background: #3a2f1a; color: #f0ad4e; }
-.ql-tx-type-spend  { background: #3a1a1a; color: #d9534f; }
-.ql-tx-type-refund { background: #1a2a3a; color: #5bc0de; }
+.ql-wallet-balance-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #f0ad4e;
+    font-variant-numeric: tabular-nums;
+}
+
+.ql-wallet-info {
+    margin: 16px 0;
+}
+
+.ql-wallet-info p {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #8b949e;
+}
+
+.ql-wallet-rate {
+    display: inline-block;
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #c9d1d9;
+}
 
 /* ── History (populated by JS) ── */
 .ql-wallet-history {
@@ -904,18 +771,13 @@ a.ql-coin-link:hover {
     .ql-header-right { align-self: flex-end; }
     .ql-player-name { font-size: 18px; }
     .ql-week-header { flex-direction: column; align-items: flex-start; }
-    .ql-week-header-right { align-self: flex-end; }
     .ql-chests { flex-direction: column; align-items: center; }
     .ql-chest { min-width: 200px; }
     .ql-fire-path { gap: 8px; }
     .ql-fire-stage { min-width: 90px; padding: 12px; }
     .ql-fire-stage img, .ql-fire-img { width: 56px !important; height: 56px !important; max-width: 56px !important; max-height: 56px !important; }
-    .ql-wallet-stats { grid-template-columns: 1fr; gap: 12px; }
-    .ql-wallet-stat-value { font-size: 28px; }
-    .ql-wallet-stat-balance .ql-wallet-stat-value { font-size: 34px; }
-    .ql-wallet-hero-title { font-size: 24px; }
-    .mfsd-wallet-page .ql-tx-row { flex-direction: column; align-items: flex-start; gap: 6px; }
-    .ql-tx-right { align-self: flex-end; }
+    .ql-wallet-balance-box { padding: 16px 28px; }
+    .ql-wallet-balance-value { font-size: 26px; }
 }
 
 @media (max-width: 480px) {
