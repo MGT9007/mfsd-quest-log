@@ -14,6 +14,7 @@ class MFSD_Quest_Log_Engine {
        If a badge isn't awarding, check the slug matches the database. */
     const WEEK_BADGES = array(
         1 => array(
+            'badge_solution_lens'   => 'solution_lens',
             'badge_word_assoc'      => 'word_association',
             'badge_junk_jobs'       => 'junk_jobs',
             'badge_who_am_i_1'      => 'personality_test_week_1',
@@ -222,6 +223,7 @@ class MFSD_Quest_Log_Engine {
        ================================================================ */
     public static function get_badge_description($slug) {
         $names = array(
+            'badge_solution_lens'   => 'The Lens',
             'badge_word_assoc'      => 'Word Association',
             'badge_junk_jobs'       => 'Junk Jobs',
             'badge_who_am_i_1'      => 'Who Am I',

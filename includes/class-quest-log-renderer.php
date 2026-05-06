@@ -13,11 +13,12 @@ class MFSD_Quest_Log_Renderer {
         1 => array(
             'title' => 'Week 1 — Self-Awareness & The Solutions Lens',
             'badges' => array(
-                'badge_word_assoc'      => array('label' => 'Word Association', 'image' => 'badge_word_assoc.png'),
-                'badge_junk_jobs'       => array('label' => 'Junk Jobs',        'image' => 'badge_junk_jobs.png'),
-                'badge_who_am_i_1'      => array('label' => 'Who Am I',         'image' => 'badge_who_am_i_1.png'),
-                'badge_super_strengths' => array('label' => 'Super Strengths',  'image' => 'badge_super_strengths.png'),
-                'badge_rag_w1'          => array('label' => 'Weekly RAG',       'image' => 'badge_rag_w1.png'),
+                'badge_solution_lens'   => array('label' => 'The Lens',          'image' => 'badge_solution_lens.png', 'plugin' => 'mfsd-solution-lens/images/'),
+                'badge_word_assoc'      => array('label' => 'Word Association',  'image' => 'badge_word_assoc.png'),
+                'badge_junk_jobs'       => array('label' => 'Junk Jobs',         'image' => 'badge_junk_jobs.png'),
+                'badge_who_am_i_1'      => array('label' => 'Who Am I',          'image' => 'badge_who_am_i_1.png'),
+                'badge_super_strengths' => array('label' => 'Super Strengths',   'image' => 'badge_super_strengths.png'),
+                'badge_rag_w1'          => array('label' => 'Weekly RAG',        'image' => 'badge_rag_w1.png'),
             ),
         ),
         2 => array(
@@ -196,7 +197,10 @@ class MFSD_Quest_Log_Renderer {
                     /* Default: locked badge */
                     $badge_image = $images_url . 'badges/badge_locked.png';
                     if ($earned) {
-                        $badge_image = $images_url . 'badges/' . $badge_config['image'];
+                        $badge_prefix = isset($badge_config['plugin'])
+                            ? plugins_url($badge_config['plugin'])
+                            : $images_url . 'badges/';
+                        $badge_image = $badge_prefix . $badge_config['image'];
                     }
 
                     /* Who Am I character overlay URL (used separately below) */
