@@ -13,9 +13,8 @@ class MFSD_Quest_Log_Renderer {
         1 => array(
             'title' => 'Week 1 — Self-Awareness & The Solutions Lens',
             'badges' => array(
-                'badge_solution_lens'   => array('label' => 'The Lens',          'image' => 'badge_solution_lens.png', 'plugin' => 'mfsd-solution-lens/images/'),
+                'badge_solution_lens'   => array('label' => 'The Solution Lens', 'image' => 'badge_solution_lens.png'),
                 'badge_word_assoc'      => array('label' => 'Word Association',  'image' => 'badge_word_assoc.png'),
-                'badge_junk_jobs'       => array('label' => 'Junk Jobs',         'image' => 'badge_junk_jobs.png'),
                 'badge_who_am_i_1'      => array('label' => 'Who Am I',          'image' => 'badge_who_am_i_1.png'),
                 'badge_super_strengths' => array('label' => 'Super Strengths',   'image' => 'badge_super_strengths.png'),
                 'badge_rag_w1'          => array('label' => 'Weekly RAG',        'image' => 'badge_rag_w1.png'),
@@ -24,6 +23,7 @@ class MFSD_Quest_Log_Renderer {
         2 => array(
             'title' => 'Week 2 — Interests, Barriers & Dreams into Plans',
             'badges' => array(
+                'badge_junk_jobs'   => array('label' => 'Junk Jobs',         'image' => 'badge_junk_jobs.png'),
                 'badge_fav_subject' => array('label' => 'Favourite Subject', 'image' => 'badge_locked.png'),
                 'badge_barriers'    => array('label' => 'Barriers',          'image' => 'badge_locked.png'),
                 'badge_dream_jobs'  => array('label' => 'Dream Jobs',        'image' => 'badge_locked.png'),
@@ -272,7 +272,7 @@ class MFSD_Quest_Log_Renderer {
                                  style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
                         </div>
                     <?php else: ?>
-                        <div class="ql-chest-hint">Complete all 5 tasks</div>
+                        <div class="ql-chest-hint">Complete all <?php echo $total; ?> tasks</div>
                     <?php endif; ?>
                 </div>
                 <div class="ql-chest <?php echo $achiever_earned ? 'earned' : 'locked'; ?>">
@@ -287,7 +287,7 @@ class MFSD_Quest_Log_Renderer {
                                  style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
                         </div>
                     <?php else: ?>
-                        <div class="ql-chest-hint">Complete all 5 within 7 days</div>
+                        <div class="ql-chest-hint">Complete all <?php echo $total; ?> within 7 days</div>
                     <?php endif; ?>
                 </div>
             </div>

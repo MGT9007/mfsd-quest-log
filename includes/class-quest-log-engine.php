@@ -16,12 +16,12 @@ class MFSD_Quest_Log_Engine {
         1 => array(
             'badge_solution_lens'   => 'solution_lens',
             'badge_word_assoc'      => 'word_association',
-            'badge_junk_jobs'       => 'junk_jobs',
             'badge_who_am_i_1'      => 'personality_test_week_1',
             'badge_super_strengths' => 'super_strengths',
             'badge_rag_w1'          => 'rag_week_1',
         ),
         2 => array(
+            'badge_junk_jobs'   => 'junk_jobs',
             'badge_fav_subject' => 'favourite_subject',
             'badge_barriers'    => 'barriers',
             'badge_dream_jobs'  => 'dream_jobs',
@@ -223,7 +223,7 @@ class MFSD_Quest_Log_Engine {
        ================================================================ */
     public static function get_badge_description($slug) {
         $names = array(
-            'badge_solution_lens'   => 'The Lens',
+            'badge_solution_lens'   => 'The Solution Lens',
             'badge_word_assoc'      => 'Word Association',
             'badge_junk_jobs'       => 'Junk Jobs',
             'badge_who_am_i_1'      => 'Who Am I',
