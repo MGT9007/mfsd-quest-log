@@ -1,5 +1,5 @@
 /* ============================================================================
-   MFSD QUEST LOG — Dark Gaming Theme v1.3.0
+   MFSD QUEST LOG — Dark Gaming Theme v1.4.0
    ============================================================================ */
 
 /* ── Dark theme body override + circuit board pattern ── */
@@ -282,7 +282,13 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     max-height: 80px !important;
     object-fit: contain;
     display: block;
-    mix-blend-mode: lighten; /* hides black-fill backgrounds until PNGs are re-exported with true alpha */
+}
+
+/* Hides black-fill backgrounds on badge art until PNGs are re-exported with true alpha.
+   Applied to .ql-badge-image only — NOT .ql-badge-image-wrap img — so character
+   overlays inside the Who Am I composite are unaffected. */
+.ql-badge-image {
+    mix-blend-mode: lighten;
 }
 
 .ql-badge-glow {
