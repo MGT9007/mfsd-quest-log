@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MFSD Quest Log
  * Description: Student badge/reward system — dark gaming theme with gem badges, treasure chests, coin wallet, and Spark/Ember/Blaze RAG evolution.
- * Version: 1.8.0
+ * Version: 1.8.1
  * Author: MisterT9007
  */
 
@@ -14,7 +14,7 @@ foreach (array('db', 'engine', 'wallet', 'renderer') as $f) {
 }
 
 final class MFSD_Quest_Log {
-    const VERSION      = '1.8.0';
+    const VERSION      = '1.8.1';
     const NONCE_ACTION = 'mfsd_quest_log_nonce';
 
     public static function instance() {

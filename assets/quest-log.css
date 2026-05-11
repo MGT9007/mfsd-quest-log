@@ -1,5 +1,5 @@
 /* ============================================================================
-   MFSD QUEST LOG — Dark Gaming Theme v1.2.0
+   MFSD QUEST LOG — Dark Gaming Theme v1.3.0
    ============================================================================ */
 
 /* ── Dark theme body override + circuit board pattern ── */
@@ -282,6 +282,7 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     max-height: 80px !important;
     object-fit: contain;
     display: block;
+    mix-blend-mode: lighten; /* hides black-fill backgrounds until PNGs are re-exported with true alpha */
 }
 
 .ql-badge-glow {
