@@ -66,6 +66,20 @@ class MFSD_Quest_Log_DB {
     }
 
     /**
+     * Check if a user already has any badge matching a given prefix.
+     * Prevents awarding duplicate badge types that come in multiple designs.
+     */
+    public function has_badge_type( $user_id, $prefix ) {
+        global $wpdb;
+        $table = $wpdb->prefix . self::TBL_BADGES;
+        return (bool) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM $table WHERE student_id = %d AND badge_slug LIKE %s",
+            $user_id,
+            $wpdb->esc_like( $prefix ) . '%'
+        ) );
+    }
+
+    /**
      * Award a badge (insert row). Returns true if newly inserted, false if already exists.
      */
     public function award_badge($student_id, $badge_slug, $coins, $metadata = null) {
