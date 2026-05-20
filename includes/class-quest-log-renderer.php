@@ -219,6 +219,11 @@ class MFSD_Quest_Log_Renderer {
                 <?php foreach ($week['badges'] as $slug => $badge_config): ?>
                     <?php
                     $earned = isset($badges[$slug]);
+                    if (!$earned && $slug === 'badge_super_strengths') {
+                        foreach ($badges as $bslug => $bval) {
+                            if (strpos($bslug, 'badge_ss_complete_') === 0) { $earned = true; break; }
+                        }
+                    }
                     $is_who_am_i = in_array($slug, array('badge_who_am_i_1', 'badge_who_am_i_2'));
                     $has_character = ($is_who_am_i && $earned && $character && !empty($character['filename']));
 
@@ -233,9 +238,10 @@ class MFSD_Quest_Log_Renderer {
 
                     /* Super Strengths completion slot — reveal the actual design image when earned */
                     if ($slug === 'badge_super_strengths' && $earned) {
+                        $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/';
                         foreach (self::$ss_design_images as $dslug => $dimg) {
                             if (strpos($dslug, 'badge_ss_complete_') === 0 && isset($badges[$dslug])) {
-                                $badge_image = $images_url . 'badges/' . $dimg;
+                                $badge_image = $ss_badges_url . $dimg;
                                 break;
                             }
                         }
@@ -289,10 +295,15 @@ class MFSD_Quest_Log_Renderer {
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
+            </div>
+
+            <?php if (!empty($winner_slots)): ?>
+            <div class="ql-badge-grid ql-winner-slots">
+                <?php $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/'; ?>
                 <?php foreach ($winner_slots as $wslug => $wcfg): ?>
                     <?php
                     $w_coins = $badges[$wslug]['coins_awarded'] ?? 15;
-                    $w_image = $images_url . 'badges/' . $wcfg['image'];
+                    $w_image = $ss_badges_url . $wcfg['image'];
                     ?>
                     <div class="ql-badge-card earned" data-badge="<?php echo esc_attr($wslug); ?>">
                         <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:hidden;position:relative;margin:0 auto 10px;">
@@ -313,6 +324,7 @@ class MFSD_Quest_Log_Renderer {
                     </div>
                 <?php endforeach; ?>
             </div>
+            <?php endif; ?>
 
             <div class="ql-chests">
                 <?php
