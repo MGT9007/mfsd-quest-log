@@ -334,34 +334,25 @@ class MFSD_Quest_Log_Renderer {
                     <?php endif; ?>
                 </div>
 
+                <?php if (!empty($winner_slots)): ?>
+                    <?php $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/'; ?>
+                    <?php foreach ($winner_slots as $wslug => $wcfg): ?>
+                        <?php $w_coins = $badges[$wslug]['coins_awarded'] ?? 15; ?>
+                        <div class="ql-chest ql-winner-chest earned" data-badge="<?php echo esc_attr($wslug); ?>">
+                            <img src="<?php echo esc_url($ss_badges_url . $wcfg['image']); ?>"
+                                 alt="<?php echo esc_attr($wcfg['label']); ?>">
+                            <div class="ql-chest-label"><?php echo esc_html($wcfg['label']); ?></div>
+                            <div class="ql-chest-coins">+<?php echo $w_coins; ?>
+                                <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                                     width="14" height="14"
+                                     style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
             </div>
 
-            <?php if (!empty($winner_slots)): ?>
-            <div class="ql-winner-section">
-                <?php $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/'; ?>
-                <?php foreach ($winner_slots as $wslug => $wcfg): ?>
-                    <?php
-                    $w_coins = $badges[$wslug]['coins_awarded'] ?? 15;
-                    $w_image = $ss_badges_url . $wcfg['image'];
-                    ?>
-                    <div class="ql-badge-card earned" data-badge="<?php echo esc_attr($wslug); ?>">
-                        <div class="ql-winner-image-wrap">
-                            <img src="<?php echo esc_url($w_image); ?>"
-                                 alt="<?php echo esc_attr($wcfg['label']); ?>"
-                                 class="ql-badge-image">
-                            <div class="ql-badge-glow"></div>
-                        </div>
-                        <div class="ql-badge-label"><?php echo esc_html($wcfg['label']); ?></div>
-                        <div class="ql-badge-sublabel" style="font-size:11px;color:#f0ad4e;font-weight:600;margin-top:3px;">🏆 Winner!</div>
-                        <div class="ql-badge-coins">+<?php echo $w_coins; ?>
-                            <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
-                                 width="14" height="14"
-                                 style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <?php endif; ?>
             </div><!-- /.ql-week-body -->
         </div>
         <?php

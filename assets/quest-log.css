@@ -383,33 +383,13 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     margin-bottom: 8px;
 }
 
-.ql-winner-section {
-    display: flex;
-    justify-content: center;
-    padding-top: 16px;
-    border-top: 1px solid #30363d;
-    margin-top: 4px;
-}
-
-.ql-winner-image-wrap {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    max-width: 150px;
-    max-height: 150px;
-    margin: 0 auto 10px;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-
-.ql-winner-image-wrap img,
-.ql-winner-image-wrap .ql-badge-image {
+.ql-winner-chest img {
     width: 150px !important;
     height: 150px !important;
     max-width: 150px !important;
     max-height: 150px !important;
-    object-fit: contain;
-    display: block;
+    mix-blend-mode: lighten;
+    margin-bottom: 8px;
 }
 
 .ql-chest-label {
