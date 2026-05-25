@@ -383,6 +383,14 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     margin-bottom: 8px;
 }
 
+.ql-winner-chest img {
+    width: 80px !important;
+    height: 80px !important;
+    max-width: 80px !important;
+    max-height: 80px !important;
+    mix-blend-mode: lighten;
+}
+
 .ql-chest-label {
     font-size: 13px;
     font-weight: 600;

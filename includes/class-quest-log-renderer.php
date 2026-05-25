@@ -297,35 +297,6 @@ class MFSD_Quest_Log_Renderer {
                 <?php endforeach; ?>
             </div>
 
-            <?php if (!empty($winner_slots)): ?>
-            <div class="ql-badge-grid ql-winner-slots">
-                <?php $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/'; ?>
-                <?php foreach ($winner_slots as $wslug => $wcfg): ?>
-                    <?php
-                    $w_coins = $badges[$wslug]['coins_awarded'] ?? 15;
-                    $w_image = $ss_badges_url . $wcfg['image'];
-                    ?>
-                    <div class="ql-badge-card earned" data-badge="<?php echo esc_attr($wslug); ?>">
-                        <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:hidden;position:relative;margin:0 auto 10px;">
-                            <img src="<?php echo esc_url($w_image); ?>"
-                                 alt="<?php echo esc_attr($wcfg['label']); ?>"
-                                 class="ql-badge-image"
-                                 width="80" height="80"
-                                 style="width:80px;height:80px;max-width:80px;max-height:80px;object-fit:contain;display:block;">
-                            <div class="ql-badge-glow"></div>
-                        </div>
-                        <div class="ql-badge-label"><?php echo esc_html($wcfg['label']); ?></div>
-                        <div class="ql-badge-sublabel" style="font-size:10px;color:#f0ad4e;font-weight:500;margin-top:2px;">🏆 Winner!</div>
-                        <div class="ql-badge-coins">+<?php echo $w_coins; ?>
-                            <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
-                                 width="14" height="14"
-                                 style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <?php endif; ?>
-
             <div class="ql-chests">
                 <?php
                 $complete_earned = isset($badges[$complete_slug]);
@@ -363,6 +334,28 @@ class MFSD_Quest_Log_Renderer {
                         <div class="ql-chest-hint">Complete all <?php echo $total; ?> within 7 days</div>
                     <?php endif; ?>
                 </div>
+
+                <?php if (!empty($winner_slots)): ?>
+                    <?php $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/'; ?>
+                    <?php foreach ($winner_slots as $wslug => $wcfg): ?>
+                        <?php
+                        $w_coins = $badges[$wslug]['coins_awarded'] ?? 15;
+                        $w_image = $ss_badges_url . $wcfg['image'];
+                        ?>
+                        <div class="ql-chest earned ql-winner-chest" data-badge="<?php echo esc_attr($wslug); ?>">
+                            <img src="<?php echo esc_url($w_image); ?>"
+                                 alt="<?php echo esc_attr($wcfg['label']); ?>"
+                                 width="80" height="80">
+                            <div class="ql-chest-label"><?php echo esc_html($wcfg['label']); ?></div>
+                            <div class="ql-badge-sublabel" style="font-size:10px;color:#f0ad4e;font-weight:500;margin-top:2px;">🏆 Winner!</div>
+                            <div class="ql-chest-coins">+<?php echo $w_coins; ?>
+                                <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                                     width="14" height="14"
+                                     style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
             </div><!-- /.ql-week-body -->
         </div>
