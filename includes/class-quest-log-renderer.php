@@ -340,7 +340,9 @@ class MFSD_Quest_Log_Renderer {
                         <?php $w_coins = $badges[$wslug]['coins_awarded'] ?? 15; ?>
                         <div class="ql-chest ql-winner-chest earned" data-badge="<?php echo esc_attr($wslug); ?>">
                             <img src="<?php echo esc_url($ss_badges_url . $wcfg['image']); ?>"
-                                 alt="<?php echo esc_attr($wcfg['label']); ?>">
+                                 alt="<?php echo esc_attr($wcfg['label']); ?>"
+                                 class="ql-winner-chest-img"
+                                 width="150" height="150">
                             <div class="ql-chest-label"><?php echo esc_html($wcfg['label']); ?></div>
                             <div class="ql-chest-coins">+<?php echo $w_coins; ?>
                                 <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"

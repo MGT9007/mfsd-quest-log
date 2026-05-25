@@ -383,13 +383,28 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     margin-bottom: 8px;
 }
 
-.ql-winner-chest img {
+.ql-winner-chest {
+    overflow: visible;
+    min-width: 165px;
+}
+
+/* Specificity 0,2,0 beats .ql-chest img (0,1,1) so the badge renders at full size */
+.ql-winner-chest .ql-winner-chest-img {
     width: 150px !important;
     height: 150px !important;
     max-width: 150px !important;
     max-height: 150px !important;
     mix-blend-mode: lighten;
     margin-bottom: 8px;
+}
+
+/* Specificity 0,2,0 beats .ql-chest img (0,1,1) to keep coin icons at 14px */
+.ql-chest .ql-mini-coin {
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    margin-bottom: 0;
 }
 
 .ql-chest-label {
