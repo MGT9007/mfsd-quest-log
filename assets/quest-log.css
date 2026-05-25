@@ -228,7 +228,7 @@ body.mfsd-quest-log-active .blog-grid-view-post {
 /* ── Badge grid ── */
 .ql-badge-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 16px;
     margin-bottom: 20px;
 }
@@ -265,10 +265,10 @@ body.mfsd-quest-log-active .blog-grid-view-post {
 
 .ql-badge-image-wrap {
     position: relative;
-    width: 80px;
-    height: 80px;
-    max-width: 80px;
-    max-height: 80px;
+    width: 150px;
+    height: 150px;
+    max-width: 150px;
+    max-height: 150px;
     margin: 0 auto 10px;
     overflow: hidden;
     flex-shrink: 0;
@@ -276,10 +276,10 @@ body.mfsd-quest-log-active .blog-grid-view-post {
 
 .ql-badge-image-wrap img,
 .ql-badge-image {
-    width: 80px !important;
-    height: 80px !important;
-    max-width: 80px !important;
-    max-height: 80px !important;
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
     object-fit: contain;
     display: block;
 }
@@ -383,12 +383,33 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     margin-bottom: 8px;
 }
 
-.ql-winner-chest img {
-    width: 80px !important;
-    height: 80px !important;
-    max-width: 80px !important;
-    max-height: 80px !important;
-    mix-blend-mode: lighten;
+.ql-winner-section {
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+    border-top: 1px solid #30363d;
+    margin-top: 4px;
+}
+
+.ql-winner-image-wrap {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    max-width: 150px;
+    max-height: 150px;
+    margin: 0 auto 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.ql-winner-image-wrap img,
+.ql-winner-image-wrap .ql-badge-image {
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
+    object-fit: contain;
+    display: block;
 }
 
 .ql-chest-label {
