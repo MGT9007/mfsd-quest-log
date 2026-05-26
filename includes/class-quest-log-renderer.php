@@ -13,11 +13,11 @@ class MFSD_Quest_Log_Renderer {
         1 => array(
             'title' => 'Week 1 — Self-Awareness & The Solutions Lens',
             'badges' => array(
-                'badge_solution_lens'   => array('label' => 'The Solution Lens', 'image' => 'badge_solution_lens.png'),
-                'badge_word_assoc'      => array('label' => 'Word Association',  'image' => 'badge_word_assoc.png'),
-                'badge_who_am_i_1'      => array('label' => 'Who Am I',          'image' => 'badge_who_am_i_1.png'),
-                'badge_super_strengths' => array('label' => 'Super Strengths',   'image' => 'badge_super_strengths.png'),
-                'badge_rag_w1'          => array('label' => 'Weekly RAG',        'image' => 'badge_rag_w1.png'),
+                'badge_solution_lens'  => array('label' => 'The Solution Lens', 'image' => 'badge_solution_lens.png'),
+                'badge_word_assoc'     => array('label' => 'Word Association',  'image' => 'badge_word_assoc.png'),
+                'badge_who_am_i_1'     => array('label' => 'Who Am I',          'image' => 'badge_who_am_i_1.png'),
+                'badge_super_strengths'=> array('label' => 'Super Strengths',   'image' => 'badge_super_strengths.png'),
+                'badge_rag_w1'         => array('label' => 'Weekly RAG',        'image' => 'badge_rag_w1.png'),
             ),
         ),
         2 => array(
@@ -161,6 +161,18 @@ class MFSD_Quest_Log_Renderer {
     /* ================================================================
        WEEK SECTION — badge grid + chests
        ================================================================ */
+    /* SS design-specific badge → image filename mapping (completion + winner) */
+    private static $ss_design_images = array(
+        'badge_ss_complete_steverman'    => 'steverman1.png',
+        'badge_ss_complete_supersteve'   => 'supersteve1.png',
+        'badge_ss_complete_wondersteve'  => 'wondersteve1.png',
+        'badge_ss_complete_harley_steve' => 'harleysteve1.png',
+        'badge_ss_winner_steverman'      => 'steverman1.png',
+        'badge_ss_winner_supersteve'     => 'supersteve1.png',
+        'badge_ss_winner_wondersteve'    => 'wondersteve1.png',
+        'badge_ss_winner_harley_steve'   => 'harleysteve1.png',
+    );
+
     private function render_week_section($week_num, $week, $badges, $character, $images_url) {
         $task_badge_slugs = array_keys($week['badges']);
         $earned_count = 0;
@@ -168,6 +180,22 @@ class MFSD_Quest_Log_Renderer {
             if (isset($badges[$slug])) $earned_count++;
         }
         $total = count($task_badge_slugs);
+
+        /* Append any earned winner badges for this week as surprise awards */
+        $winner_slots = array();
+        if ($week_num === 1) {
+            $winner_labels = array(
+                'badge_ss_winner_steverman'    => 'Super Strengths Winner',
+                'badge_ss_winner_supersteve'   => 'Super Strengths Winner',
+                'badge_ss_winner_wondersteve'  => 'Super Strengths Winner',
+                'badge_ss_winner_harley_steve' => 'Super Strengths Winner',
+            );
+            foreach ($winner_labels as $wslug => $wlabel) {
+                if (isset($badges[$wslug])) {
+                    $winner_slots[$wslug] = array('label' => $wlabel, 'image' => self::$ss_design_images[$wslug]);
+                }
+            }
+        }
 
         $complete_slug = 'badge_week' . $week_num . '_complete';
         $achiever_slug = 'badge_week' . $week_num . '_achiever';
@@ -191,6 +219,11 @@ class MFSD_Quest_Log_Renderer {
                 <?php foreach ($week['badges'] as $slug => $badge_config): ?>
                     <?php
                     $earned = isset($badges[$slug]);
+                    if (!$earned && $slug === 'badge_super_strengths') {
+                        foreach ($badges as $bslug => $bval) {
+                            if (strpos($bslug, 'badge_ss_complete_') === 0) { $earned = true; break; }
+                        }
+                    }
                     $is_who_am_i = in_array($slug, array('badge_who_am_i_1', 'badge_who_am_i_2'));
                     $has_character = ($is_who_am_i && $earned && $character && !empty($character['filename']));
 
@@ -201,6 +234,17 @@ class MFSD_Quest_Log_Renderer {
                             ? plugins_url($badge_config['plugin'])
                             : $images_url . 'badges/';
                         $badge_image = $badge_prefix . $badge_config['image'];
+                    }
+
+                    /* Super Strengths completion slot — reveal the actual design image when earned */
+                    if ($slug === 'badge_super_strengths' && $earned) {
+                        $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/';
+                        foreach (self::$ss_design_images as $dslug => $dimg) {
+                            if (strpos($dslug, 'badge_ss_complete_') === 0 && isset($badges[$dslug])) {
+                                $badge_image = $ss_badges_url . $dimg;
+                                break;
+                            }
+                        }
                     }
 
                     /* Who Am I character overlay URL (used separately below) */
@@ -221,18 +265,17 @@ class MFSD_Quest_Log_Renderer {
                     <div class="ql-badge-card <?php echo $earned ? 'earned' : 'locked'; ?>" data-badge="<?php echo esc_attr($slug); ?>">
                         <?php if ($has_character): ?>
                         <!-- Who Am I: portal frame as background, character as foreground -->
-                        <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:visible;position:relative;margin:0 auto 10px;background:url('<?php echo esc_url($badge_image); ?>') center/contain no-repeat;">
+                        <div class="ql-badge-image-wrap" style="overflow:visible;background:url('<?php echo esc_url($badge_image); ?>') center/contain no-repeat;">
                             <img src="<?php echo esc_url($character_url); ?>"
                                  alt="<?php echo esc_attr($badge_sublabel); ?>"
-                                 width="52" height="52"
-                                 style="width:52px;height:52px;max-width:52px;max-height:52px;object-fit:contain;display:block;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+                                 width="97" height="97"
+                                 style="width:97px;height:97px;max-width:97px;max-height:97px;object-fit:contain;display:block;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
                         <?php else: ?>
-                        <div class="ql-badge-image-wrap" style="width:80px;height:80px;max-width:80px;max-height:80px;overflow:hidden;position:relative;margin:0 auto 10px;">
+                        <div class="ql-badge-image-wrap">
                             <img src="<?php echo esc_url($badge_image); ?>"
                                  alt="<?php echo esc_attr($badge_label); ?>"
                                  class="ql-badge-image"
-                                 width="80" height="80"
-                                 style="width:80px;height:80px;max-width:80px;max-height:80px;object-fit:contain;display:block;">
+                                 width="150" height="150">
                         <?php endif; ?>
                             <?php if ($earned): ?>
                                 <div class="ql-badge-glow"></div>
@@ -290,7 +333,28 @@ class MFSD_Quest_Log_Renderer {
                         <div class="ql-chest-hint">Complete all <?php echo $total; ?> within 7 days</div>
                     <?php endif; ?>
                 </div>
+
+                <?php if (!empty($winner_slots)): ?>
+                    <?php $ss_badges_url = defined('MFSD_SS_URL') ? MFSD_SS_URL . 'assets/badges/' : $images_url . 'badges/'; ?>
+                    <?php foreach ($winner_slots as $wslug => $wcfg): ?>
+                        <?php $w_coins = $badges[$wslug]['coins_awarded'] ?? 15; ?>
+                        <div class="ql-chest ql-winner-chest earned" data-badge="<?php echo esc_attr($wslug); ?>">
+                            <img src="<?php echo esc_url($ss_badges_url . $wcfg['image']); ?>"
+                                 alt="<?php echo esc_attr($wcfg['label']); ?>"
+                                 class="ql-winner-chest-img"
+                                 width="150" height="150">
+                            <div class="ql-chest-label"><?php echo esc_html($wcfg['label']); ?></div>
+                            <div class="ql-chest-coins">+<?php echo $w_coins; ?>
+                                <img src="<?php echo esc_url($images_url . 'ui/coin_icon.png'); ?>" alt="" class="ql-mini-coin"
+                                     width="14" height="14"
+                                     style="width:14px;height:14px;max-width:14px;max-height:14px;object-fit:contain;display:inline-block;">
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
             </div>
+
             </div><!-- /.ql-week-body -->
         </div>
         <?php

@@ -228,7 +228,7 @@ body.mfsd-quest-log-active .blog-grid-view-post {
 /* ── Badge grid ── */
 .ql-badge-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 16px;
     margin-bottom: 20px;
 }
@@ -265,10 +265,10 @@ body.mfsd-quest-log-active .blog-grid-view-post {
 
 .ql-badge-image-wrap {
     position: relative;
-    width: 80px;
-    height: 80px;
-    max-width: 80px;
-    max-height: 80px;
+    width: 150px;
+    height: 150px;
+    max-width: 150px;
+    max-height: 150px;
     margin: 0 auto 10px;
     overflow: hidden;
     flex-shrink: 0;
@@ -276,10 +276,10 @@ body.mfsd-quest-log-active .blog-grid-view-post {
 
 .ql-badge-image-wrap img,
 .ql-badge-image {
-    width: 80px !important;
-    height: 80px !important;
-    max-width: 80px !important;
-    max-height: 80px !important;
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
     object-fit: contain;
     display: block;
 }
@@ -381,6 +381,30 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     max-height: 64px !important;
     object-fit: contain;
     margin-bottom: 8px;
+}
+
+.ql-winner-chest {
+    overflow: visible;
+    min-width: 165px;
+}
+
+/* Specificity 0,2,0 beats .ql-chest img (0,1,1) so the badge renders at full size */
+.ql-winner-chest .ql-winner-chest-img {
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
+    mix-blend-mode: lighten;
+    margin-bottom: 8px;
+}
+
+/* Specificity 0,2,0 beats .ql-chest img (0,1,1) to keep coin icons at 14px */
+.ql-chest .ql-mini-coin {
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    margin-bottom: 0;
 }
 
 .ql-chest-label {
