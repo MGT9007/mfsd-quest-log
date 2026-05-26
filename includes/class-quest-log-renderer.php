@@ -47,6 +47,20 @@ class MFSD_Quest_Log_Renderer {
        MAIN RENDER
        ================================================================ */
     public function render($student_id, $badges, $balance, $character, $display_name, $images_url) {
+        /* ── Determine active week ──
+           The active week is the first week that isn't fully complete.
+           If all weeks are complete, the last week stays active.
+           Only the active week is expanded on load; all others start collapsed. */
+        $active_week = array_key_first(self::WEEK_CONFIG);
+        foreach (self::WEEK_CONFIG as $wn => $wk) {
+            $w_earned = 0;
+            foreach (array_keys($wk['badges']) as $s) {
+                if (isset($badges[$s])) $w_earned++;
+            }
+            $active_week = $wn; // always update so last week wins if all complete
+            if ($w_earned < count($wk['badges'])) break; // first incomplete = active
+        }
+
         ob_start();
         ?>
         <div class="mfsd-quest-log" id="mfsd-quest-log-root">
@@ -54,7 +68,7 @@ class MFSD_Quest_Log_Renderer {
             <?php $this->render_header($student_id, $display_name, $balance, $images_url); ?>
 
             <?php foreach (self::WEEK_CONFIG as $week_num => $week): ?>
-                <?php $this->render_week_section($week_num, $week, $badges, $character, $images_url); ?>
+                <?php $this->render_week_section($week_num, $week, $badges, $character, $images_url, $week_num === $active_week); ?>
             <?php endforeach; ?>
 
             <?php $this->render_rag_evolution($badges, $images_url); ?>
@@ -173,7 +187,7 @@ class MFSD_Quest_Log_Renderer {
         'badge_ss_winner_harley_steve'   => 'harleysteve1.png',
     );
 
-    private function render_week_section($week_num, $week, $badges, $character, $images_url) {
+    private function render_week_section($week_num, $week, $badges, $character, $images_url, $is_active = false) {
         $task_badge_slugs = array_keys($week['badges']);
         $earned_count = 0;
         foreach ($task_badge_slugs as $slug) {
@@ -200,8 +214,8 @@ class MFSD_Quest_Log_Renderer {
         $complete_slug = 'badge_week' . $week_num . '_complete';
         $achiever_slug = 'badge_week' . $week_num . '_achiever';
         ?>
-        <div class="ql-week-section<?php echo $earned_count === 0 ? ' ql-collapsed' : ''; ?>" data-week="<?php echo $week_num; ?>" data-earned="<?php echo $earned_count; ?>">
-            <div class="ql-week-header" role="button" tabindex="0" aria-expanded="<?php echo $earned_count > 0 ? 'true' : 'false'; ?>">
+        <div class="ql-week-section<?php echo $is_active ? '' : ' ql-collapsed'; ?>" data-week="<?php echo $week_num; ?>" data-earned="<?php echo $earned_count; ?>">
+            <div class="ql-week-header" role="button" tabindex="0" aria-expanded="<?php echo $is_active ? 'true' : 'false'; ?>">
                 <h2 class="ql-week-title"><?php echo esc_html($week['title']); ?></h2>
                 <div class="ql-week-header-right">
                     <div class="ql-week-progress">
