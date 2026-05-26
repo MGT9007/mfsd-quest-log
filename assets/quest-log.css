@@ -193,6 +193,42 @@ body.mfsd-quest-log-active .blog-grid-view-post {
     margin-bottom: 20px;
     gap: 16px;
     flex-wrap: wrap;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ql-week-header:hover .ql-week-title {
+    color: #f0ad4e;
+    transition: color 0.2s;
+}
+
+/* ── Chevron icon ── */
+.ql-week-chevron {
+    font-size: 14px;
+    color: #8b949e;
+    margin-left: 8px;
+    display: inline-block;
+    transition: transform 0.25s ease, color 0.2s;
+    transform: rotate(0deg); /* pointing down = expanded */
+}
+
+/* ── Collapsed state ── */
+.ql-week-section.ql-collapsed .ql-week-header {
+    margin-bottom: 0;
+}
+
+.ql-week-section.ql-collapsed .ql-week-chevron {
+    transform: rotate(-90deg); /* pointing right = collapsed */
+    color: #f0ad4e;
+}
+
+.ql-week-body {
+    overflow: hidden;
+    transition: opacity 0.2s ease;
+}
+
+.ql-week-section.ql-collapsed .ql-week-body {
+    display: none;
 }
 
 .ql-week-title {
