@@ -57,7 +57,12 @@ if (isset($_POST['mfsd_quest_clear_student']) && check_admin_referer('mfsd_quest
     if ($uid > 0) {
         $db->delete_student_badges($uid);
         $wallet->delete_student_transactions($uid);
-        echo '<div class="notice notice-success"><p>All Quest Log data cleared for user #' . $uid . '.</p></div>';
+        // Also clear task progress — without this the badge engine re-awards all badges
+        // on the very next Quest Log page load because the completed task records persist.
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}mfsd_task_progress'")) {
+            $wpdb->delete($wpdb->prefix . 'mfsd_task_progress', array('student_id' => $uid));
+        }
+        echo '<div class="notice notice-success"><p>All Quest Log data cleared for user #' . $uid . ' (badges, wallet, and task progress).</p></div>';
     }
 }
 
