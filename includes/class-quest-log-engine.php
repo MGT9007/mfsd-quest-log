@@ -21,6 +21,7 @@ class MFSD_Quest_Log_Engine {
             'badge_rag_w1'          => 'rag_week_1',
         ),
         2 => array(
+            'badge_life_wheel'  => 'life_wheel',
             'badge_junk_jobs'   => 'junk_jobs',
             'badge_fav_subject' => 'favourite_subject',
             'badge_barriers'    => 'barriers',
@@ -239,6 +240,7 @@ class MFSD_Quest_Log_Engine {
             'badge_rag_w1'          => 'RAG Spark',
             'badge_week1_complete'  => 'Week 1 Complete',
             'badge_week1_achiever'  => 'Week 1 Achiever',
+            'badge_life_wheel'      => 'Wheel of Life',
             'badge_fav_subject'     => 'Favourite Subject',
             'badge_barriers'        => 'Barriers',
             'badge_dream_jobs'      => 'Dream Jobs',

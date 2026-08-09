@@ -23,6 +23,7 @@ class MFSD_Quest_Log_Renderer {
         2 => array(
             'title' => 'Week 2 — Interests, Barriers & Dreams into Plans',
             'badges' => array(
+                'badge_life_wheel'  => array('label' => 'Wheel of Life',     'image' => 'badge_locked.png'),
                 'badge_junk_jobs'   => array('label' => 'Junk Jobs',         'image' => 'badge_junk_jobs.png'),
                 'badge_fav_subject' => array('label' => 'Favourite Subject', 'image' => 'badge_locked.png'),
                 'badge_barriers'    => array('label' => 'Barriers',          'image' => 'badge_locked.png'),
