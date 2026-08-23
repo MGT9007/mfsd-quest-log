@@ -13,31 +13,6 @@ $db     = new MFSD_Quest_Log_DB();
 $wallet = new MFSD_Quest_Log_Wallet();
 $engine = new MFSD_Quest_Log_Engine();
 
-/* All badge slugs with display names for the UI */
-$all_badges = array(
-    'Week 1' => array(
-        'badge_word_assoc'      => 'Word Association',
-        'badge_junk_jobs'       => 'Junk Jobs',
-        'badge_who_am_i_1'      => 'Who Am I',
-        'badge_super_strengths' => 'Super Strengths',
-        'badge_rag_w1'          => 'Weekly RAG (Spark)',
-    ),
-    'Week 2' => array(
-        'badge_fav_subject' => 'Favourite Subject',
-        'badge_barriers'    => 'Barriers',
-        'badge_dream_jobs'  => 'Dream Jobs',
-        'badge_who_am_i_2'  => 'Who Am I (Part 2)',
-        'badge_rag_w2'      => 'Weekly RAG (Ember)',
-    ),
-    'Week 3' => array(
-        'badge_fifty_quid' => '£50 on Success',
-        'badge_hp_wheel'   => 'HP Wheel',
-        'badge_what_is_hp' => 'What is HP?',
-        'badge_dream_life' => 'Dream Life',
-        'badge_rag_w3'     => 'Weekly RAG (Blaze)',
-    ),
-);
-
 /* ── Handle admin actions ── */
 
 // Award bonus coins
@@ -84,6 +59,13 @@ if (isset($_POST['mfsd_quest_save_settings']) && check_admin_referer('mfsd_quest
     $wallet_page_id = (int) ($_POST['wallet_page_id'] ?? 0);
     update_option('mfsd_quest_wallet_page_id', $wallet_page_id);
 
+    /* Course selector — only overwrite if a real course was submitted, so a
+       missing/blank field can never blank out an already-working value. */
+    $submitted_course_id = (int) ($_POST['quest_course_id'] ?? 0);
+    if ($submitted_course_id > 0) {
+        update_option('mfsd_quest_course_id', $submitted_course_id);
+    }
+
     /* Global animation toggles */
     $global_anims = array('float', 'border_glow', 'fire_flicker', 'chest_wobble', 'locked_pulse', 'progress_shine');
     foreach ($global_anims as $key) {
@@ -126,6 +108,30 @@ if (isset($_POST['mfsd_quest_save_settings']) && check_admin_referer('mfsd_quest
 /* ── Load data ── */
 $student_counts = $db->get_all_student_badge_counts();
 $coins_per_min  = (int) get_option('mfsd_quest_coins_per_minute', 10);
+
+/* Badge slugs with display names for the UI, grouped by week title —
+   built live from mfsd-ordering's wp_mfsd_task_order (via mfsd_quest_course_id)
+   instead of a hardcoded list, so it can never drift out of sync with the
+   Foundation Course's actual configured tasks (and, as a side effect, can no
+   longer omit any badge the way the old hardcoded list omitted two). Read
+   here (after the settings-save handler above), not at the top of the file,
+   so a course change saved in this same request is reflected immediately. */
+$quest_course_id = (int) get_option('mfsd_quest_course_id', 0);
+$badge_config_by_week = ( $quest_course_id && function_exists('mfsd_get_course_badge_config') )
+    ? mfsd_get_course_badge_config($quest_course_id)
+    : array();
+$week_titles = ( $quest_course_id && function_exists('mfsd_get_course_week_titles') )
+    ? mfsd_get_course_week_titles($quest_course_id)
+    : array();
+
+$all_badges = array();
+foreach ($badge_config_by_week as $week_num => $week_tasks) {
+    $week_label = $week_titles[$week_num] ?? ('Week ' . $week_num);
+    foreach ($week_tasks as $cfg) {
+        if (empty($cfg['badge_slug'])) continue;
+        $all_badges[$week_label][$cfg['badge_slug']] = $cfg['display_name'];
+    }
+}
 
 /* Global anim settings */
 $anim = array(
@@ -292,6 +298,34 @@ $students = get_users(array('role' => 'student', 'number' => 100, 'orderby' => '
                         <td>
                             <input type="number" name="coins_per_minute" min="1" max="100" value="<?php echo $coins_per_min; ?>">
                             <p class="description">Default: 10 coins = 1 minute of arcade time.</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Course -->
+            <div style="background:#fff;padding:20px;border:1px solid #ddd;border-radius:8px;max-width:800px;margin-bottom:24px;">
+                <h3 style="margin-top:0;">Course</h3>
+                <p class="description" style="margin-bottom:12px;">Which course's task/badge configuration (from Course Manager) this Quest Log reads badges, coins, RAG stages and week titles from.</p>
+                <table class="form-table" style="margin-top:0;">
+                    <tr>
+                        <th>Course</th>
+                        <td>
+                            <?php if (!function_exists('mfsd_get_courses')): ?>
+                                <p class="description" style="color:#b32d2e;">MFSD Ordering Utility is not active — no courses available to select.</p>
+                            <?php else:
+                                $quest_courses = mfsd_get_courses();
+                            ?>
+                                <select name="quest_course_id">
+                                    <?php if (!$quest_courses): ?>
+                                        <option value="">— No courses found —</option>
+                                    <?php else: foreach ($quest_courses as $qc): ?>
+                                        <option value="<?php echo esc_attr($qc->id); ?>" <?php selected($quest_course_id, $qc->id); ?>>
+                                            <?php echo esc_html($qc->course_name); ?>
+                                        </option>
+                                    <?php endforeach; endif; ?>
+                                </select>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 </table>

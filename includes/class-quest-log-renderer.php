@@ -8,58 +8,44 @@ if (!defined('ABSPATH')) exit;
 
 class MFSD_Quest_Log_Renderer {
 
-    /* ── Badge display config per week ── */
-    const WEEK_CONFIG = array(
-        1 => array(
-            'title' => 'Week 1 — Self-Awareness & The Solutions Lens',
-            'badges' => array(
-                'badge_solution_lens'  => array('label' => 'The Solution Lens', 'image' => 'badge_solution_lens.png'),
-                'badge_word_assoc'     => array('label' => 'Word Association',  'image' => 'badge_word_assoc.png'),
-                'badge_who_am_i_1'     => array('label' => 'Who Am I',          'image' => 'badge_who_am_i_1.png'),
-                'badge_super_strengths'=> array('label' => 'Super Strengths',   'image' => 'badge_super_strengths.png'),
-                'badge_rag_w1'         => array('label' => 'Weekly RAG',        'image' => 'badge_rag_w1.png'),
-            ),
-        ),
-        2 => array(
-            'title' => 'Week 2 — Interests, Barriers & Dreams into Plans',
-            'badges' => array(
-                'badge_life_wheel'  => array('label' => 'Wheel of Life',     'image' => 'badge_locked.png'),
-                'badge_junk_jobs'   => array('label' => 'Junk Jobs',         'image' => 'badge_junk_jobs.png'),
-                'badge_fav_subject' => array('label' => 'Favourite Subject', 'image' => 'badge_locked.png'),
-                'badge_barriers'    => array('label' => 'Barriers',          'image' => 'badge_locked.png'),
-                'badge_dream_jobs'  => array('label' => 'Dream Jobs',        'image' => 'badge_locked.png'),
-                'badge_who_am_i_2'  => array('label' => 'Who Am I (Part 2)', 'image' => 'badge_locked.png'),
-                'badge_rag_w2'      => array('label' => 'Weekly RAG',        'image' => 'badge_locked.png'),
-            ),
-        ),
-        3 => array(
-            'title' => 'Week 3 — High Performance & Future Direction',
-            'badges' => array(
-                'badge_fifty_quid' => array('label' => '£50 on Success',  'image' => 'badge_locked.png'),
-                'badge_hp_wheel'   => array('label' => 'HP Wheel',        'image' => 'badge_locked.png'),
-                'badge_what_is_hp' => array('label' => 'What is HP?',     'image' => 'badge_locked.png'),
-                'badge_dream_life' => array('label' => 'Dream Life',      'image' => 'badge_locked.png'),
-                'badge_rag_w3'     => array('label' => 'Weekly RAG',      'image' => 'badge_locked.png'),
-            ),
-        ),
-    );
-
     /* ================================================================
        MAIN RENDER
+       Badge/coin/RAG config and week titles now come from mfsd-ordering's
+       wp_mfsd_task_order (via mfsd_get_course_badge_config() /
+       mfsd_get_course_week_titles()), driven by the mfsd_quest_course_id
+       option — replaces the old hardcoded WEEK_CONFIG.
        ================================================================ */
     public function render($student_id, $badges, $balance, $character, $display_name, $images_url) {
+        $course_id = (int) get_option('mfsd_quest_course_id', 0);
+
+        /* $active_only = false — earned badges must stay visible even after their
+           task is later deactivated in Course Manager (confirmed with Mark).
+           render_week_section() decides per-card whether to actually show a
+           task that's now inactive (only if it was earned). */
+        $badge_config = ( $course_id && function_exists('mfsd_get_course_badge_config') )
+            ? mfsd_get_course_badge_config($course_id, false)
+            : array();
+        $week_titles  = ( $course_id && function_exists('mfsd_get_course_week_titles') )
+            ? mfsd_get_course_week_titles($course_id)
+            : array();
+
         /* ── Determine active week ──
            The active week is the first week that isn't fully complete.
            If all weeks are complete, the last week stays active.
-           Only the active week is expanded on load; all others start collapsed. */
-        $active_week = array_key_first(self::WEEK_CONFIG);
-        foreach (self::WEEK_CONFIG as $wn => $wk) {
+           Only the active week is expanded on load; all others start collapsed.
+           Uses active tasks only — a deactivated task (earned or not) should
+           not influence which week is considered "current". */
+        $active_week = array_key_first($badge_config);
+        foreach ($badge_config as $wn => $week_tasks) {
+            $w_total  = 0;
             $w_earned = 0;
-            foreach (array_keys($wk['badges']) as $s) {
-                if (isset($badges[$s])) $w_earned++;
+            foreach ($week_tasks as $cfg) {
+                if (empty($cfg['badge_slug']) || empty($cfg['active'])) continue;
+                $w_total++;
+                if (isset($badges[$cfg['badge_slug']])) $w_earned++;
             }
             $active_week = $wn; // always update so last week wins if all complete
-            if ($w_earned < count($wk['badges'])) break; // first incomplete = active
+            if ($w_earned < $w_total) break; // first incomplete = active
         }
 
         ob_start();
@@ -68,11 +54,12 @@ class MFSD_Quest_Log_Renderer {
 
             <?php $this->render_header($student_id, $display_name, $balance, $images_url); ?>
 
-            <?php foreach (self::WEEK_CONFIG as $week_num => $week): ?>
-                <?php $this->render_week_section($week_num, $week, $badges, $character, $images_url, $week_num === $active_week); ?>
+            <?php foreach ($badge_config as $week_num => $week_tasks): ?>
+                <?php $week_title = $week_titles[$week_num] ?? ( 'Week ' . $week_num ); ?>
+                <?php $this->render_week_section($week_num, $week_title, $week_tasks, $badges, $character, $images_url, $week_num === $active_week); ?>
             <?php endforeach; ?>
 
-            <?php $this->render_rag_evolution($badges, $images_url); ?>
+            <?php $this->render_rag_evolution($badge_config, $badges, $images_url); ?>
 
         </div>
         <?php
@@ -188,13 +175,22 @@ class MFSD_Quest_Log_Renderer {
         'badge_ss_winner_harley_steve'   => 'harleysteve1.png',
     );
 
-    private function render_week_section($week_num, $week, $badges, $character, $images_url, $is_active = false) {
-        $task_badge_slugs = array_keys($week['badges']);
+    private function render_week_section($week_num, $week_title, $week_tasks, $badges, $character, $images_url, $is_active = false) {
+        /* Progress bar / chest "complete all N" denominator counts active tasks
+           only — matches the engine's own counted_total, which stops counting a
+           task once deactivated. Earned-but-now-inactive badges still get a card
+           in the grid below (confirmed with Mark), they just don't count here. */
+        $active_badge_slugs = array();
+        foreach ($week_tasks as $cfg) {
+            if (!empty($cfg['badge_slug']) && !empty($cfg['active'])) {
+                $active_badge_slugs[] = $cfg['badge_slug'];
+            }
+        }
         $earned_count = 0;
-        foreach ($task_badge_slugs as $slug) {
+        foreach ($active_badge_slugs as $slug) {
             if (isset($badges[$slug])) $earned_count++;
         }
-        $total = count($task_badge_slugs);
+        $total = count($active_badge_slugs);
 
         /* Append any earned winner badges for this week as surprise awards */
         $winner_slots = array();
@@ -217,7 +213,7 @@ class MFSD_Quest_Log_Renderer {
         ?>
         <div class="ql-week-section<?php echo $is_active ? '' : ' ql-collapsed'; ?>" data-week="<?php echo $week_num; ?>" data-earned="<?php echo $earned_count; ?>">
             <div class="ql-week-header" role="button" tabindex="0" aria-expanded="<?php echo $is_active ? 'true' : 'false'; ?>">
-                <h2 class="ql-week-title"><?php echo esc_html($week['title']); ?></h2>
+                <h2 class="ql-week-title"><?php echo esc_html($week_title); ?></h2>
                 <div class="ql-week-header-right">
                     <div class="ql-week-progress">
                         <div class="ql-progress-bar">
@@ -231,9 +227,16 @@ class MFSD_Quest_Log_Renderer {
 
             <div class="ql-week-body">
             <div class="ql-badge-grid">
-                <?php foreach ($week['badges'] as $slug => $badge_config): ?>
+                <?php foreach ($week_tasks as $task_slug => $cfg): ?>
                     <?php
+                    $slug = $cfg['badge_slug'] ?? '';
+                    if (!$slug) continue; // task has no badge configured — nothing to render as a badge card
+
                     $earned = isset($badges[$slug]);
+
+                    // Inactive AND never earned = no longer offered, don't show at all.
+                    // Inactive but earned = keep showing as a historical record (confirmed with Mark).
+                    if (empty($cfg['active']) && !$earned) continue;
                     if (!$earned && $slug === 'badge_super_strengths') {
                         foreach ($badges as $bslug => $bval) {
                             if (strpos($bslug, 'badge_ss_complete_') === 0) { $earned = true; break; }
@@ -242,13 +245,12 @@ class MFSD_Quest_Log_Renderer {
                     $is_who_am_i = in_array($slug, array('badge_who_am_i_1', 'badge_who_am_i_2'));
                     $has_character = ($is_who_am_i && $earned && $character && !empty($character['filename']));
 
-                    /* Default: locked badge */
+                    /* Default: locked badge. Earned badges use the task's own badge_image
+                       (already a full URL, set in Course Manager) if set, else fall back to
+                       badge_locked.png too — confirmed behaviour with Mark. */
                     $badge_image = $images_url . 'badges/badge_locked.png';
-                    if ($earned) {
-                        $badge_prefix = isset($badge_config['plugin'])
-                            ? plugins_url($badge_config['plugin'])
-                            : $images_url . 'badges/';
-                        $badge_image = $badge_prefix . $badge_config['image'];
+                    if ($earned && !empty($cfg['badge_image'])) {
+                        $badge_image = $cfg['badge_image'];
                     }
 
                     /* Super Strengths completion slot — reveal the actual design image when earned */
@@ -271,7 +273,7 @@ class MFSD_Quest_Log_Renderer {
                     $coins = $earned ? ($badges[$slug]['coins_awarded'] ?? 10) : null;
 
                     /* Who Am I badge label shows character name when earned */
-                    $badge_label = $badge_config['label'];
+                    $badge_label = $cfg['display_name'];
                     $badge_sublabel = '';
                     if ($has_character) {
                         $badge_sublabel = 'The ' . $character['name'];
@@ -378,18 +380,43 @@ class MFSD_Quest_Log_Renderer {
     /* ================================================================
        RAG EVOLUTION — Spark > Ember > Blaze
        ================================================================ */
-    private function render_rag_evolution($badges, $images_url) {
-        $stages = array(
-            1 => array('name' => 'Spark',  'slug' => 'badge_rag_w1', 'image_lit' => 'fire/spark_lit.png',  'image_dark' => 'fire/spark_dark.png'),
-            2 => array('name' => 'Ember',  'slug' => 'badge_rag_w2', 'image_lit' => 'fire/ember_lit.png',  'image_dark' => 'fire/ember_dark.png'),
-            3 => array('name' => 'Blaze',  'slug' => 'badge_rag_w3', 'image_lit' => 'fire/blaze_lit.png',  'image_dark' => 'fire/blaze_dark.png'),
+    private function render_rag_evolution($badge_config, $badges, $images_url) {
+        /* Fire stage art/name stays a fixed positional convention — app chrome,
+           not per-task content (confirmed: first RAG task = Spark, second =
+           Ember, third = Blaze, by week order) — but WHICH badge_slug lights up
+           each stage is now derived from tasks flagged is_rag = 1 instead of the
+           old hardcoded badge_rag_w1/w2/w3 slugs. */
+        $stage_art = array(
+            array('name' => 'Spark', 'image_lit' => 'fire/spark_lit.png', 'image_dark' => 'fire/spark_dark.png'),
+            array('name' => 'Ember', 'image_lit' => 'fire/ember_lit.png', 'image_dark' => 'fire/ember_dark.png'),
+            array('name' => 'Blaze', 'image_lit' => 'fire/blaze_lit.png', 'image_dark' => 'fire/blaze_dark.png'),
         );
+
+        $rag_slugs_by_week = array();
+        foreach ($badge_config as $week_num => $week_tasks) {
+            foreach ($week_tasks as $cfg) {
+                if (!empty($cfg['is_rag']) && !empty($cfg['badge_slug'])) {
+                    $rag_slugs_by_week[$week_num] = $cfg['badge_slug']; // one per week, per confirmed decision
+                    break;
+                }
+            }
+        }
+        ksort($rag_slugs_by_week);
+
+        $stages = array();
+        $i = 0;
+        foreach ($rag_slugs_by_week as $week_num => $badge_slug) {
+            if (!isset($stage_art[$i])) break; // more RAG weeks than fire stages exist for
+            $stages[] = array_merge($stage_art[$i], array('slug' => $badge_slug, 'week' => $week_num));
+            $i++;
+        }
+        $last_index = count($stages) - 1;
         ?>
         <div class="ql-rag-evolution">
             <h2 class="ql-section-title">Reflection Journey</h2>
             <p class="ql-section-sub">Complete your Weekly RAG to evolve your fire!</p>
             <div class="ql-fire-path">
-                <?php foreach ($stages as $num => $stage): ?>
+                <?php foreach ($stages as $idx => $stage): ?>
                     <?php
                     $lit = isset($badges[$stage['slug']]);
                     $img = $lit ? $stage['image_lit'] : $stage['image_dark'];
@@ -402,9 +429,9 @@ class MFSD_Quest_Log_Renderer {
                              style="width:72px;height:72px;max-width:72px;max-height:72px;object-fit:contain;"
                              onerror="this.style.display='none'">
                         <div class="ql-fire-label"><?php echo esc_html($stage['name']); ?></div>
-                        <div class="ql-fire-week">Week <?php echo $num; ?> RAG</div>
+                        <div class="ql-fire-week">Week <?php echo $stage['week']; ?> RAG</div>
                     </div>
-                    <?php if ($num < 3): ?>
+                    <?php if ($idx < $last_index): ?>
                         <div class="ql-fire-connector <?php echo $lit ? 'lit' : ''; ?>">
                             <span class="ql-fire-arrow">&rarr;</span>
                         </div>

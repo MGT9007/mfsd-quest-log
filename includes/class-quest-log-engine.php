@@ -9,56 +9,12 @@ if (!defined('ABSPATH')) exit;
 
 class MFSD_Quest_Log_Engine {
 
-    /* ── Badge → Task mappings per week ──
-       These must match the exact task_slug values in wp_mfsd_task_progress.
-       If a badge isn't awarding, check the slug matches the database. */
-    const WEEK_BADGES = array(
-        1 => array(
-            'badge_solution_lens'   => 'solution_lens',
-            'badge_word_assoc'      => 'word_association',
-            'badge_who_am_i_1'      => 'personality_test_week_1',
-            'badge_super_strengths' => 'super_strengths',
-            'badge_rag_w1'          => 'rag_week_1',
-        ),
-        2 => array(
-            'badge_life_wheel'  => 'life_wheel',
-            'badge_junk_jobs'   => 'junk_jobs',
-            'badge_fav_subject' => 'favourite_subject',
-            'badge_barriers'    => 'barriers',
-            'badge_dream_jobs'  => 'dream_jobs',
-            'badge_who_am_i_2'  => 'who_am_i_part_2',
-            'badge_rag_w2'      => 'rag_week_2',
-        ),
-        3 => array(
-            'badge_fifty_quid' => 'fifty_on_success',
-            'badge_hp_wheel'   => 'hp_wheel',
-            'badge_what_is_hp' => 'what_is_hp',
-            'badge_dream_life' => 'dream_life',
-            'badge_rag_w3'     => 'rag_week_3',
-        ),
-    );
-
-    /* ── Coin values ── */
-    const COIN_TASK          = 10;
-    const COIN_RAG_SPARK     = 10;
-    const COIN_RAG_EMBER     = 15;
-    const COIN_RAG_BLAZE     = 20;
+    /* ── Week-milestone coin values ──
+       Per-task badge/coin config now lives in wp_mfsd_task_order (mfsd-ordering),
+       read via mfsd_get_course_badge_config() — see evaluate_all()/evaluate_week().
+       These two remain constants: week-milestone chest rewards, not per-task. */
     const COIN_WEEK_COMPLETE = 25;
     const COIN_WEEK_ACHIEVER = 50;
-
-    /* ── RAG badge slugs for evolution tracking ── */
-    const RAG_BADGES = array(
-        1 => 'badge_rag_w1',
-        2 => 'badge_rag_w2',
-        3 => 'badge_rag_w3',
-    );
-
-    /* ── RAG coin values ── */
-    const RAG_COINS = array(
-        1 => 10,  // Spark
-        2 => 15,  // Ember
-        3 => 20,  // Blaze
-    );
 
     private $db;
     private $wallet;
@@ -72,30 +28,53 @@ class MFSD_Quest_Log_Engine {
        MAIN EVALUATION — run on every page load of the Quest Log
        ================================================================ */
     public function evaluate_all($student_id) {
+        $course_id = (int) get_option('mfsd_quest_course_id', 0);
+        if (!$course_id || !function_exists('mfsd_get_course_badge_config')) return;
+
+        $badge_config  = mfsd_get_course_badge_config($course_id);
         $task_statuses = $this->get_all_task_statuses($student_id);
 
-        foreach (self::WEEK_BADGES as $week_num => $badges) {
-            $this->evaluate_week($student_id, $week_num, $badges, $task_statuses);
+        foreach ($badge_config as $week_num => $week_tasks) {
+            $this->evaluate_week($student_id, $week_num, $week_tasks, $task_statuses);
         }
     }
 
     /* ================================================================
        PER-WEEK EVALUATION
        ================================================================ */
-    private function evaluate_week($student_id, $week_num, $badges, $task_statuses) {
-        $completed_count = 0;
+    private function evaluate_week($student_id, $week_num, $week_tasks, $task_statuses) {
+        $completed_count     = 0;
+        $counted_total       = 0;
+        $counted_badge_slugs = array();
 
-        foreach ($badges as $badge_slug => $task_slug) {
+        foreach ($week_tasks as $task_slug => $cfg) {
+            $counts = !empty($cfg['counts_for_week_badge']);
+            if ($counts) {
+                $counted_total++;
+                if (!empty($cfg['badge_slug'])) {
+                    $counted_badge_slugs[] = $cfg['badge_slug'];
+                }
+            }
+
             $status = $task_statuses[$task_slug] ?? 'not_started';
-
             if ($status === 'completed') {
-                $completed_count++;
-                $this->maybe_award_task_badge($student_id, $badge_slug, $task_slug, $week_num);
+                if (!empty($cfg['badge_slug'])) {
+                    $this->maybe_award_task_badge(
+                        $student_id, $cfg['badge_slug'], $task_slug, $week_num,
+                        (int) ($cfg['coin_value'] ?? 10)
+                    );
+                }
+                if ($counts) {
+                    $completed_count++;
+                }
             }
         }
 
-        /* Week completion badges */
-        if ($completed_count === count($badges)) {
+        /* Week completion badges — denominator is tasks flagged counts_for_week_badge,
+           not every task in the week (lets an "Other"/bonus task exist without
+           blocking week completion). Guard against an empty/misconfigured week
+           vacuously matching 0 === 0. */
+        if ($counted_total > 0 && $completed_count === $counted_total) {
             $complete_slug = 'badge_week' . $week_num . '_complete';
             if (!$this->db->has_badge($student_id, $complete_slug)) {
                 $this->db->award_badge($student_id, $complete_slug, self::COIN_WEEK_COMPLETE);
@@ -103,10 +82,10 @@ class MFSD_Quest_Log_Engine {
                     'Week ' . $week_num . ' completed — all tasks done!');
             }
 
-            /* Achiever — all 5 completed within 7 days of the first badge */
+            /* Achiever — all counted tasks completed within 7 days of the first badge */
             $achiever_slug = 'badge_week' . $week_num . '_achiever';
             if (!$this->db->has_badge($student_id, $achiever_slug)) {
-                if ($this->check_achiever($student_id, $badges)) {
+                if ($this->check_achiever($student_id, $counted_badge_slugs)) {
                     $this->db->award_badge($student_id, $achiever_slug, self::COIN_WEEK_ACHIEVER);
                     $this->wallet->earn($student_id, $achiever_slug, self::COIN_WEEK_ACHIEVER,
                         'Week ' . $week_num . ' achiever — completed within 7 days!');
@@ -118,16 +97,8 @@ class MFSD_Quest_Log_Engine {
     /* ================================================================
        AWARD A SINGLE TASK BADGE
        ================================================================ */
-    private function maybe_award_task_badge($student_id, $badge_slug, $task_slug, $week_num) {
+    private function maybe_award_task_badge($student_id, $badge_slug, $task_slug, $week_num, $coins) {
         if ($this->db->has_badge($student_id, $badge_slug)) return;
-
-        /* Determine coin value — RAG badges have different values */
-        $rag_slug = self::RAG_BADGES[$week_num] ?? null;
-        if ($badge_slug === $rag_slug) {
-            $coins = self::RAG_COINS[$week_num] ?? self::COIN_TASK;
-        } else {
-            $coins = self::COIN_TASK;
-        }
 
         /* Build metadata */
         $metadata = array('task_slug' => $task_slug, 'week' => $week_num);
@@ -148,11 +119,12 @@ class MFSD_Quest_Log_Engine {
     /* ================================================================
        ACHIEVER CHECK — all badges earned within 7 days of first
        ================================================================ */
-    private function check_achiever($student_id, $badges) {
-        $task_badge_slugs = array_keys($badges);
-        $dates = $this->db->get_week_badge_dates($student_id, $task_badge_slugs);
+    private function check_achiever($student_id, $badge_slugs) {
+        if (empty($badge_slugs)) return false;
 
-        if (count($dates) < count($task_badge_slugs)) return false;
+        $dates = $this->db->get_week_badge_dates($student_id, $badge_slugs);
+
+        if (count($dates) < count($badge_slugs)) return false;
 
         $timestamps = array_map(function($row) {
             return strtotime($row['earned_at']);
