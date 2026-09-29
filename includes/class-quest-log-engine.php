@@ -198,7 +198,7 @@ class MFSD_Quest_Log_Engine {
         $names = array(
             'badge_solution_lens'   => 'The Solution Lens',
             'badge_word_assoc'      => 'Word Association',
-            'badge_junk_jobs'       => 'Junk Jobs',
+            'badge_junk_jobs'       => 'Dream & Junk Jobs',
             'badge_who_am_i_1'      => 'Who Am I',
             'badge_super_strengths'          => 'Super Strengths',
             'badge_ss_complete_steverman'    => 'Super Strengths — Steverman',
